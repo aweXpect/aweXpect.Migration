@@ -41,10 +41,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\ci-analysis.yml = .github\workflows\ci-analysis.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{B776D4D9-F241-49BA-B005-8484BC686008}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Benchmarks", "Benchmarks\aweXpect.Migration.Benchmarks\aweXpect.Migration.Benchmarks.csproj", "{E122DD93-09CD-4316-A0D0-F57019A3B9B5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration", "Source\aweXpect.Migration\aweXpect.Migration.csproj", "{DA22A80F-C009-481F-A8D0-FB895BEA525B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Tests", "Tests\aweXpect.Migration.Tests\aweXpect.Migration.Tests.csproj", "{494F4BA5-02EE-4656-9D5E-BF9BB25C49E8}"
@@ -62,15 +58,10 @@ Global
 		{DFD09AAE-5400-42DA-BF53-A06D27390BC7} = {99D141BC-CCD6-4EEF-99DA-828CEF1F8928}
 		{7819A5D7-30A2-4ADE-A84B-C1791BF9F21F} = {DFD09AAE-5400-42DA-BF53-A06D27390BC7}
 		{5C4FFB48-47DD-438D-AB04-CAFBF307160C} = {99D141BC-CCD6-4EEF-99DA-828CEF1F8928}
-		{E122DD93-09CD-4316-A0D0-F57019A3B9B5} = {B776D4D9-F241-49BA-B005-8484BC686008}
 		{494F4BA5-02EE-4656-9D5E-BF9BB25C49E8} = {9CC57AD0-4984-4618-96EA-01FFFCCD84FA}
 		{EA828A6C-5C01-4950-9F67-F53847CE3DDF} = {9CC57AD0-4984-4618-96EA-01FFFCCD84FA}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E122DD93-09CD-4316-A0D0-F57019A3B9B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E122DD93-09CD-4316-A0D0-F57019A3B9B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E122DD93-09CD-4316-A0D0-F57019A3B9B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E122DD93-09CD-4316-A0D0-F57019A3B9B5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA22A80F-C009-481F-A8D0-FB895BEA525B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA22A80F-C009-481F-A8D0-FB895BEA525B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA22A80F-C009-481F-A8D0-FB895BEA525B}.Release|Any CPU.ActiveCfg = Release|Any CPU
