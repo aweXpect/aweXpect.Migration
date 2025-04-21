@@ -26,10 +26,10 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions" PublicKey="$(PublicKey)"/>
-		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.Analyzer" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.Analyzers" PublicKey="$(PublicKey)"/>
 		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.Tests" PublicKey="$(PublicKey)"/>
 		<InternalsVisibleTo Include="aweXpect.Migration.Xunit" PublicKey="$(PublicKey)"/>
-		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.Analyzer" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.Analyzers" PublicKey="$(PublicKey)"/>
 		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.Tests" PublicKey="$(PublicKey)"/>
 	</ItemGroup>
 

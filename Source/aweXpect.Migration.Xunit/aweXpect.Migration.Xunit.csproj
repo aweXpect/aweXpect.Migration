@@ -12,7 +12,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\aweXpect.Migration.Common\aweXpect.Migration.Common.csproj"/>
-		<ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzer\aweXpect.Migration.Xunit.Analyzer.csproj"/>
+		<ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj" />
 	</ItemGroup>
 
 </Project>
