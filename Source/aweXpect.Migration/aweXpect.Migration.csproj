@@ -5,12 +5,26 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\aweXpect.Migration.FluentAssertions\aweXpect.Migration.FluentAssertions.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.FluentAssertions\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.FluentAssertions.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.FluentAssertions\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.FluentAssertions.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-		<ProjectReference Include="..\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Xunit\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Xunit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Xunit\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Xunit.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\aweXpect.Migration.Analyzers\aweXpect.Migration.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Analyzers\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<ProjectReference Include="..\aweXpect.Migration.Analyzers.CodeFixers\aweXpect.Migration.Analyzers.CodeFixers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Analyzers.CodeFixers\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Analyzers.CodeFixers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<None Remove="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.dll" Pack="true"/>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Remove="AnalyzerReleases.Unshipped.md" />
+	  <AdditionalFiles Remove="AnalyzerReleases.Shipped.md" />
 	</ItemGroup>
 
 </Project>

@@ -32,7 +32,8 @@ partial class Build
 				$"[![Changelog](https://img.shields.io/badge/Changelog-v{version}-blue)](https://github.com/aweXpect/aweXpect.Migration/releases/tag/v{version})");
 			foreach (string line in lines.Skip(1))
 			{
-				if (line.StartsWith("[![Build](https://github.com/aweXpect/aweXpect.Migration/actions/workflows/build.yml") ||
+				if (line.StartsWith(
+					    "[![Build](https://github.com/aweXpect/aweXpect.Migration/actions/workflows/build.yml") ||
 				    line.StartsWith("[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure"))
 				{
 					continue;
@@ -63,8 +64,6 @@ partial class Build
 			foreach (Project project in new[]
 			         {
 				         Solution.aweXpect_Migration,
-				         Solution.aweXpect_Migration_FluentAssertions,
-				         Solution.aweXpect_Migration_Xunit,
 			         })
 			{
 				foreach (string package in
