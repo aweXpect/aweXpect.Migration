@@ -1,0 +1,12 @@
+[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/aweXpect/aweXpect.Migration.git")]
+[assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
+namespace aweXpect.Migration.Xunit
+{
+    [Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer("C#", new string[0])]
+    public class XUnitAssertionAnalyzer : aweXpect.Migration.Common.ConcurrentDiagnosticAnalyzer
+    {
+        public XUnitAssertionAnalyzer() { }
+        public override System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.DiagnosticDescriptor> SupportedDiagnostics { get; }
+        protected override void InitializeInternal(Microsoft.CodeAnalysis.Diagnostics.AnalysisContext context) { }
+    }
+}

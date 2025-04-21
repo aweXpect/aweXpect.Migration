@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net8.0</TargetFrameworks>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\..\Source\aweXpect.Migration\aweXpect.Migration.csproj"/>
 	</ItemGroup>
@@ -15,4 +11,5 @@
 	<ItemGroup>
 		<Folder Include="Expected\"/>
 	</ItemGroup>
+	
 </Project>

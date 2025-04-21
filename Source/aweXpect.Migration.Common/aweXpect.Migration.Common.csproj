@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+	</ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.Analyzers" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.CodeFixers" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.FluentAssertions.Tests" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.Analyzers" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.CodeFixers" PublicKey="$(PublicKey)"/>
+		<InternalsVisibleTo Include="aweXpect.Migration.Xunit.Tests" PublicKey="$(PublicKey)"/>
+	</ItemGroup>
+
+</Project>

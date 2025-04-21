@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Source\aweXpect.Migration.FluentAssertions.Analyzers\aweXpect.Migration.FluentAssertions.Analyzers.csproj"/>
+		<ProjectReference Include="..\..\Source\aweXpect.Migration.FluentAssertions.CodeFixers\aweXpect.Migration.FluentAssertions.CodeFixers.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"/>
+	</ItemGroup>
+
+</Project>

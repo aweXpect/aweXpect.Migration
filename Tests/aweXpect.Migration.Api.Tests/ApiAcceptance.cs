@@ -1,16 +1,20 @@
-﻿namespace aweXpect.Api.Tests;
+﻿namespace aweXpect.Migration.Api.Tests;
 
 public sealed class ApiAcceptance
 {
 	/// <summary>
 	///     Execute this test to update the expected public API to the current API surface.
 	/// </summary>
-	[Fact(Explicit = true)]
+	[Fact]
 	public async Task AcceptApiChanges()
 	{
 		string[] assemblyNames =
 		[
-			"aweXpect.Migration",
+			"aweXpect.Migration.Common",
+			"aweXpect.Migration.FluentAssertions.Analyzers",
+			"aweXpect.Migration.FluentAssertions.CodeFixers",
+			"aweXpect.Migration.Xunit.Analyzers",
+			"aweXpect.Migration.Xunit.CodeFixers",
 		];
 
 		foreach (string assemblyName in assemblyNames)

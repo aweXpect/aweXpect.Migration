@@ -7,7 +7,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using PublicApiGenerator;
 
-namespace aweXpect.Api.Tests;
+namespace aweXpect.Migration.Api.Tests;
 
 public static class Helper
 {
@@ -45,7 +45,7 @@ public static class Helper
 		string csproj = CombinedPaths("Source", "Directory.Build.props");
 		XDocument project = XDocument.Load(csproj);
 		XElement? targetFrameworks =
-			project.XPathSelectElement("/Project/PropertyGroup/TargetFrameworks");
+			project.XPathSelectElement("/Project/PropertyGroup/TargetFramework");
 		foreach (string targetFramework in targetFrameworks!.Value.Split(';'))
 		{
 			yield return targetFramework;

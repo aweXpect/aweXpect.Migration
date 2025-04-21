@@ -15,15 +15,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
-		<NoWarn>$(NoWarn);1701;1702</NoWarn>
-		<WarningsNotAsErrors>CS1591;NU5104</WarningsNotAsErrors>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<LangVersion>latest</LangVersion>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<DevelopmentDependency>false</DevelopmentDependency>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<NoWarn>RS2003</NoWarn>
+		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<PropertyGroup>

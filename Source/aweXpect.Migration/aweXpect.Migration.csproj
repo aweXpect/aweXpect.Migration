@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<RootNamespace>aweXpect</RootNamespace>
-	</PropertyGroup>
-
 	<ItemGroup>
-		<PackageReference Include="aweXpect.Core"/>
+	  <ProjectReference Include="..\aweXpect.Migration.FluentAssertions.Analyzers\aweXpect.Migration.FluentAssertions.Analyzers.csproj" />
+	  <ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace aweXpect.Api.Tests;
+﻿namespace aweXpect.Migration.Api.Tests;
 
 /// <summary>
 ///     Whenever a test fails, this means that the public API surface changed.
@@ -9,9 +9,57 @@ public sealed class ApiApprovalTests
 {
 	[Theory]
 	[MemberData(nameof(TargetFrameworksTheoryData))]
-	public async Task VerifyPublicApiForAweXpectMigration(string framework)
+	public async Task VerifyPublicApiForAweXpectMigrationCommon(string framework)
 	{
-		const string assemblyName = "aweXpect.Migration";
+		const string assemblyName = "aweXpect.Migration.Common";
+
+		string publicApi = Helper.CreatePublicApi(framework, assemblyName);
+		string expectedApi = Helper.GetExpectedApi(framework, assemblyName);
+
+		await That(publicApi).IsEqualTo(expectedApi);
+	}
+
+	[Theory]
+	[MemberData(nameof(TargetFrameworksTheoryData))]
+	public async Task VerifyPublicApiForAweXpectMigrationCommonFluentAssertionsAnalyzers(string framework)
+	{
+		const string assemblyName = "aweXpect.Migration.FluentAssertions.Analyzers";
+
+		string publicApi = Helper.CreatePublicApi(framework, assemblyName);
+		string expectedApi = Helper.GetExpectedApi(framework, assemblyName);
+
+		await That(publicApi).IsEqualTo(expectedApi);
+	}
+
+	[Theory]
+	[MemberData(nameof(TargetFrameworksTheoryData))]
+	public async Task VerifyPublicApiForAweXpectMigrationCommonFluentAssertionsCodeFixers(string framework)
+	{
+		const string assemblyName = "aweXpect.Migration.FluentAssertions.CodeFixers";
+
+		string publicApi = Helper.CreatePublicApi(framework, assemblyName);
+		string expectedApi = Helper.GetExpectedApi(framework, assemblyName);
+
+		await That(publicApi).IsEqualTo(expectedApi);
+	}
+
+	[Theory]
+	[MemberData(nameof(TargetFrameworksTheoryData))]
+	public async Task VerifyPublicApiForAweXpectMigrationCommonXunitAnalyzers(string framework)
+	{
+		const string assemblyName = "aweXpect.Migration.Xunit.Analyzers";
+
+		string publicApi = Helper.CreatePublicApi(framework, assemblyName);
+		string expectedApi = Helper.GetExpectedApi(framework, assemblyName);
+
+		await That(publicApi).IsEqualTo(expectedApi);
+	}
+
+	[Theory]
+	[MemberData(nameof(TargetFrameworksTheoryData))]
+	public async Task VerifyPublicApiForAweXpectMigrationCommonXunitCodeFixers(string framework)
+	{
+		const string assemblyName = "aweXpect.Migration.Xunit.CodeFixers";
 
 		string publicApi = Helper.CreatePublicApi(framework, assemblyName);
 		string expectedApi = Helper.GetExpectedApi(framework, assemblyName);
