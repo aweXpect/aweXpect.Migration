@@ -32,6 +32,7 @@ public static partial class CSharpAnalyzerVerifier<TAnalyzer>
 			ReferenceAssemblies = ReferenceAssemblies.Net.Net80.AddPackages(
 			[
 				new PackageIdentity("xunit.v3", "1.1.0"),
+				new PackageIdentity("FluentAssertions", "7.2.0"),
 			]),
 			TestState =
 			{

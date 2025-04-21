@@ -10,11 +10,10 @@ namespace aweXpect.Migration.Analyzers;
 ///     An analyzer that flags most xunit assertions.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class XUnitAssertionAnalyzer : DiagnosticAnalyzer
+public class XunitAssertionAnalyzer : DiagnosticAnalyzer
 {
 	/// <inheritdoc />
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-		ImmutableArray.Create(Rules.XUnitAssertionRule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.XUnitAssertionRule,];
 
 	/// <inheritdoc />
 	public override void Initialize(AnalysisContext context)

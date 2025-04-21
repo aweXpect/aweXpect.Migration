@@ -37,6 +37,7 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
 			ReferenceAssemblies = ReferenceAssemblies.Net.Net80.AddPackages(
 			[
 				new PackageIdentity("xunit.v3", "1.1.0"),
+				new PackageIdentity("FluentAssertions", "7.2.0"),
 			]),
 			TestState =
 			{
@@ -78,6 +79,7 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
 			ReferenceAssemblies = ReferenceAssemblies.Net.Net80.AddPackages(
 			[
 				new PackageIdentity("xunit.v3", "1.1.0"),
+				new PackageIdentity("FluentAssertions", "7.2.0"),
 			]),
 			TestState =
 			{

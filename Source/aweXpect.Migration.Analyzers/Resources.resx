@@ -34,7 +34,7 @@
 		<value>fluentassertions should not be used</value>
 	</data>
 	<data name="aweXpectM002CodeFixTitle" xml:space="preserve">
-		<value>Migrate to aweXpect</value>
+		<value>Migrate fluentassertions to aweXpect</value>
 		<comment>The title of the code fix.</comment>
 	</data>
 	<data name="aweXpectM003Description" xml:space="preserve">
@@ -47,6 +47,6 @@
 		<value>Xunit assertions should be replaced with aweXpect</value>
 	</data>
 	<data name="aweXpectM003CodeFixTitle" xml:space="preserve">
-		<value>Migrate to aweXpect</value>
+		<value>Migrate xunit assertion to aweXpect</value>
 	</data>
 </root>

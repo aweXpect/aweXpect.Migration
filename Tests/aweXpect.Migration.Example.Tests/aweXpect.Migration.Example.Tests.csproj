@@ -17,4 +17,8 @@
 						  SetTargetFramework="TargetFramework=netstandard2.0"/>
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="FluentAssertions"/>
+	</ItemGroup>
+
 </Project>
