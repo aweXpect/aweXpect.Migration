@@ -42,6 +42,6 @@ internal static class SyntaxExtensions
 		{
 			yield return parent;
 			parent = parent.Parent;
-		} ;
+		}
 	}
 }

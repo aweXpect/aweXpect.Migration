@@ -22,7 +22,7 @@ public class XUnitAssertionAnalyzer : ConcurrentDiagnosticAnalyzer
 		context.RegisterOperationAction(AnalyzeOperation, OperationKind.Invocation);
 	}
     
-	private void AnalyzeOperation(OperationAnalysisContext context)
+	private static void AnalyzeOperation(OperationAnalysisContext context)
 	{
 		if (context.Operation is not IInvocationOperation invocationOperation)
 		{

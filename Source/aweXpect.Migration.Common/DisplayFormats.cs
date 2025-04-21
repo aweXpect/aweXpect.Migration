@@ -2,7 +2,7 @@
 
 namespace aweXpect.Migration.Common;
 
-internal class DisplayFormats
+internal static class DisplayFormats
 {
 	public static readonly SymbolDisplayFormat FullyQualifiedNonGenericWithGlobalPrefix = new(
 		SymbolDisplayGlobalNamespaceStyle.Included,
