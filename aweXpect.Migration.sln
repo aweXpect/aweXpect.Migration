@@ -52,9 +52,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Common", "Source\aweXpect.Migration.Common\aweXpect.Migration.Common.csproj", "{7CB117FF-4BE2-4A3D-8694-D9E41DB69C1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.FluentAssertions.CodeFixers", "Source\aweXpect.Migration.FluentAssertions.CodeFixers\aweXpect.Migration.FluentAssertions.CodeFixers.csproj", "{87B3942B-A2F3-400D-B72B-5FE450FBA25F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.FluentAssertions.Analyzer", "Source\aweXpect.Migration.FluentAssertions.Analyzer\aweXpect.Migration.FluentAssertions.Analyzer.csproj", "{87B3942B-A2F3-400D-B72B-5FE450FBA25F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit.CodeFixers", "Source\aweXpect.Migration.Xunit.CodeFixers\aweXpect.Migration.Xunit.CodeFixers.csproj", "{160EB6C4-F7A4-41CC-B32A-DB41CF618650}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit.Analyzer", "Source\aweXpect.Migration.Xunit.Analyzer\aweXpect.Migration.Xunit.Analyzer.csproj", "{160EB6C4-F7A4-41CC-B32A-DB41CF618650}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

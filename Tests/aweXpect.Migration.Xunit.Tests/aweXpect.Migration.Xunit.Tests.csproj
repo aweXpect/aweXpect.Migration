@@ -2,7 +2,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj"/>
-		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit.CodeFixers\aweXpect.Migration.Xunit.CodeFixers.csproj"/>
+		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit.Analyzer\aweXpect.Migration.Xunit.Analyzer.csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
