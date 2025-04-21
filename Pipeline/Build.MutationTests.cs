@@ -60,7 +60,7 @@ partial class Build
 					]
 				},
 				{
-					Solution.aweXpect_Migration_Xunit_Analyzers, [
+					Solution.aweXpect_Migration_Xunit_CodeFixers, [
 						Solution.Tests.aweXpect_Migration_Xunit_Tests,
 					]
 				},
@@ -173,7 +173,7 @@ partial class Build
 					]
 				},
 				{
-					Solution.aweXpect_Migration_Xunit_Analyzers, [
+					Solution.aweXpect_Migration_Xunit_CodeFixers, [
 						Solution.Tests.aweXpect_Migration_Xunit_Tests,
 					]
 				},
