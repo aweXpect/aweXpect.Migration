@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj"/>
+		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj"/>
 		<ProjectReference Include="..\..\Source\aweXpect.Migration.Xunit.CodeFixers\aweXpect.Migration.Xunit.CodeFixers.csproj"/>
 	</ItemGroup>
 

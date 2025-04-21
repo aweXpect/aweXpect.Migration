@@ -44,9 +44,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration", "Sourc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.FluentAssertions.Tests", "Tests\aweXpect.Migration.FluentAssertions.Tests\aweXpect.Migration.FluentAssertions.Tests.csproj", "{494F4BA5-02EE-4656-9D5E-BF9BB25C49E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit.Analyzers", "Source\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj", "{2EA55962-AA08-4055-AEEE-4828FE0C2D4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit", "Source\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj", "{2EA55962-AA08-4055-AEEE-4828FE0C2D4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.FluentAssertions.Analyzers", "Source\aweXpect.Migration.FluentAssertions.Analyzers\aweXpect.Migration.FluentAssertions.Analyzers.csproj", "{94BA75F4-A748-4BD8-8BE9-42D83E082DF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.FluentAssertions", "Source\aweXpect.Migration.FluentAssertions\aweXpect.Migration.FluentAssertions.csproj", "{94BA75F4-A748-4BD8-8BE9-42D83E082DF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration.Xunit.Tests", "Tests\aweXpect.Migration.Xunit.Tests\aweXpect.Migration.Xunit.Tests.csproj", "{7D66BD33-E11D-46E0-8E0C-49A38E8FC9E2}"
 EndProject

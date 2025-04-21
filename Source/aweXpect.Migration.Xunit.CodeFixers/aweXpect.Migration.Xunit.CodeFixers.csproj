@@ -15,6 +15,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\aweXpect.Migration.Common\aweXpect.Migration.Common.csproj"/>
-		<ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj" />
+		<ProjectReference Include="..\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj" />
 	</ItemGroup>
 </Project>

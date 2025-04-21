@@ -1,8 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+	</PropertyGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="..\aweXpect.Migration.FluentAssertions.Analyzers\aweXpect.Migration.FluentAssertions.Analyzers.csproj" />
-	  <ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj" />
+		<ProjectReference Include="..\aweXpect.Migration.FluentAssertions\aweXpect.Migration.FluentAssertions.csproj" OutputItemType="Analyzer"/>
+		<ProjectReference Include="..\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj" OutputItemType="Analyzer"/>
 	</ItemGroup>
 
 </Project>
