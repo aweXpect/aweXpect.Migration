@@ -16,7 +16,8 @@ partial class Build
 
 	Project[] UnitTestProjects =>
 	[
-		Solution.Tests.aweXpect_Migration_Tests,
+		Solution.Tests.aweXpect_Migration_FluentAssertions_Tests,
+		Solution.Tests.aweXpect_Migration_Xunit_Tests,
 	];
 
 	Target DotNetUnitTests => _ => _
