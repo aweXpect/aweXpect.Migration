@@ -4,7 +4,7 @@
 			Condition="Exists('$(MSBuildThisFileDirectory)/../Directory.Build.props')"/>
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net48</TargetFrameworks>
+		<TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup>
