@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
+using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities;
@@ -82,6 +85,29 @@ partial class Build
 				.WhenNotNull(MainVersion, (summary, mainVersion) => summary
 					.AddPair("Version", mainVersion.FileVersion + mainVersion.PreRelease)));
 
+			Dictionary<Project, Configuration> projects = new()
+			{
+				{
+					Solution.aweXpect_Migration_Analyzers, Configuration
+				},
+				{
+					Solution.aweXpect_Migration_Analyzers_CodeFixers, Configuration
+				},
+			};
+
+			foreach (var (project, configuration) in projects)
+			{
+				DotNetBuild(s => s
+					.SetProjectFile(project)
+					.SetConfiguration(configuration)
+					.EnableNoLogo()
+					.SetProcessAdditionalArguments($"/p:SolutionDir={RootDirectory}")
+					.SetVersion(MainVersion.FileVersion + MainVersion.PreRelease)
+					.SetAssemblyVersion(MainVersion.FileVersion)
+					.SetFileVersion(MainVersion.FileVersion)
+					.SetInformationalVersion(MainVersion.InformationalVersion));
+			}
+			
 			DotNetBuild(s => s
 				.SetProjectFile(Solution)
 				.SetConfiguration(Configuration)
