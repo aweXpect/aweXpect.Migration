@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-	  <RootNamespace>aweXpect.Migration.FluentAssertions</RootNamespace>
+		<RootNamespace>aweXpect.Migration.FluentAssertions</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

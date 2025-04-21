@@ -63,6 +63,8 @@ partial class Build
 			foreach (Project project in new[]
 			         {
 				         Solution.aweXpect_Migration,
+				         Solution.aweXpect_Migration_FluentAssertions,
+				         Solution.aweXpect_Migration_Xunit,
 			         })
 			{
 				foreach (string package in

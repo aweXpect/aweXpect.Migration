@@ -1,8 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+	</PropertyGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="..\aweXpect.Migration.FluentAssertions.Analyzers\aweXpect.Migration.FluentAssertions.Analyzers.csproj" />
-	  <ProjectReference Include="..\aweXpect.Migration.Xunit.Analyzers\aweXpect.Migration.Xunit.Analyzers.csproj" />
+		<ProjectReference Include="..\aweXpect.Migration.FluentAssertions\aweXpect.Migration.FluentAssertions.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.FluentAssertions\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.FluentAssertions.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.FluentAssertions\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.FluentAssertions.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<ProjectReference Include="..\aweXpect.Migration.Xunit\aweXpect.Migration.Xunit.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Xunit\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Xunit.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+		<None Include="$(MSBuildProjectDirectory)\..\aweXpect.Migration.Xunit\bin\$(Configuration)\netstandard2.0\aweXpect.Migration.Xunit.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
 	</ItemGroup>
 
 </Project>
