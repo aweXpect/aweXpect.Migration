@@ -1,16 +1,17 @@
 ﻿using aweXpect.Migration.Analyzers;
 using Verifier =
-	aweXpect.Migration.Tests.Verifiers.CSharpAnalyzerVerifier<aweXpect.Migration.Analyzers.XUnitAssertionAnalyzer>;
+	aweXpect.Migration.Tests.Verifiers.CSharpAnalyzerVerifier<aweXpect.Migration.Analyzers.FluentAssertionsAnalyzer>;
 
-namespace aweXpect.Migration.Tests;
+namespace aweXpect.Migration.Tests.FluentAssertions;
 
-public class XUnitAssertionAnalyzerTests
+public class FluentAssertionsAnalyzerTests
 {
 	[Fact]
 	public async Task WhenUsingAssertEqual_ShouldBeFlagged() => await Verifier
 		.VerifyAnalyzerAsync(
 			"""
 			using aweXpect;
+			using FluentAssertions;
 			using Xunit;
 
 			public class MyClass
@@ -21,11 +22,11 @@ public class XUnitAssertionAnalyzerTests
 			    {
 			        string subject = "foo";
 			        
-			        {|#0:Assert.Equal(expected, subject)|};
+			        {|#0:subject.Should().Be(expected)|};
 			    }
 			}
 			""",
-			Verifier.Diagnostic(Rules.XUnitAssertionRule)
+			Verifier.Diagnostic(Rules.FluentAssertionsRule)
 				.WithLocation(0)
 		);
 
@@ -34,6 +35,7 @@ public class XUnitAssertionAnalyzerTests
 		.VerifyAnalyzerAsync(
 			"""
 			using aweXpect;
+			using FluentAssertions;
 			using Xunit;
 
 			public class MyClass
@@ -43,11 +45,11 @@ public class XUnitAssertionAnalyzerTests
 			    {
 			        bool subject = true;
 			        
-			        {|#0:Assert.True(subject)|};
+			        {|#0:subject.Should().BeTrue()|};
 			    }
 			}
 			""",
-			Verifier.Diagnostic(Rules.XUnitAssertionRule)
+			Verifier.Diagnostic(Rules.FluentAssertionsRule)
 				.WithLocation(0)
 		);
 }

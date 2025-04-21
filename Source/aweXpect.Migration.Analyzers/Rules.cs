@@ -7,10 +7,10 @@ internal static class Rules
 	private const string UsageCategory = "Usage";
 
 	public static readonly DiagnosticDescriptor FluentAssertionsRule =
-		CreateDescriptor("aweXpectM002", UsageCategory, DiagnosticSeverity.Error);
+		CreateDescriptor("aweXpectM002", UsageCategory, DiagnosticSeverity.Warning);
 
 	public static readonly DiagnosticDescriptor XUnitAssertionRule =
-		CreateDescriptor("aweXpectM003", UsageCategory, DiagnosticSeverity.Error);
+		CreateDescriptor("aweXpectM003", UsageCategory, DiagnosticSeverity.Warning);
 
 
 	private static DiagnosticDescriptor CreateDescriptor(string diagnosticId, string category,

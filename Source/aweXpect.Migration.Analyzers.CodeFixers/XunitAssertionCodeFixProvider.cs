@@ -21,8 +21,7 @@ namespace aweXpect.Migration.Analyzers;
 public class XunitAssertionCodeFixProvider : CodeFixProvider
 {
 	/// <inheritdoc />
-	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-		ImmutableArray.Create(Rules.XUnitAssertionRule.Id);
+	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = [Rules.XUnitAssertionRule.Id,];
 
 	/// <inheritdoc />
 	public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -130,10 +129,6 @@ public class XunitAssertionCodeFixProvider : CodeFixProvider
 					$"Expect.That({actual}).IsNot<{genericArgs}>()")
 				: SyntaxFactory.ParseExpression(
 					$"Expect.That({actual}).IsNot({expected})"),
-			"All" => SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).All().Satisfy({expected})"),
-			"Single" => SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).HasSingle()"),
 			"IsType" => isGeneric
 				? SyntaxFactory.ParseExpression(
 					$"Expect.That({actual}).IsExactly<{genericArgs}>()")
@@ -149,9 +144,9 @@ public class XunitAssertionCodeFixProvider : CodeFixProvider
 			"NotEmpty" => SyntaxFactory.ParseExpression(
 				$"Expect.That({actual}).IsNotEmpty()"),
 			"Fail" => SyntaxFactory.ParseExpression(
-				"Fail.Test()"),
+				$"Fail.Test({expected})"),
 			"Skip" => SyntaxFactory.ParseExpression(
-				"Skip.Test()"),
+				$"Skip.Test({expected})"),
 			"Throws" or "ThrowsAsync" => isGeneric
 				? SyntaxFactory.ParseExpression(
 					$"Expect.That({actual}).ThrowsExactly<{genericArgs}>()")
