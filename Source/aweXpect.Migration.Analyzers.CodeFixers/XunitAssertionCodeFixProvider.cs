@@ -100,73 +100,68 @@ public class XunitAssertionCodeFixProvider : CodeFixProvider
 		return method switch
 		{
 			"Equal" => await IsEqualTo(context, argumentListArguments, actual, expected),
-
 			"NotEqual" => await IsNotEqualTo(context, argumentListArguments, actual, expected),
-
 			"Contains" => await Contains(context, memberAccessExpressionSyntax, actual, expected),
-
-			"DoesNotContain" => SyntaxFactory.ParseExpression($"Expect.That({actual}).DoesNotContain({expected})"),
-
-			"StartsWith" => SyntaxFactory.ParseExpression($"Expect.That({actual}).StartsWith({expected})"),
-
-			"EndsWith" => SyntaxFactory.ParseExpression($"Expect.That({actual}).EndsWith({expected})"),
-
-			"NotNull" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotNull()"),
-
-			"Null" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNull()"),
-
-			"True" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsTrue()"),
-
-			"False" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsFalse()"),
-
-			"Same" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsSameAs({expected})"),
-
-			"NotSame" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotSameAs({expected})"),
-
-//            "IsAssignableTo" => isGeneric
-//                ? SyntaxFactory.ParseExpression($"Expect.That({actual}).IsAssignableTo<{genericArgs}>()")
-//                : SyntaxFactory.ParseExpression($"Expect.That({actual}).IsAssignableTo({expected})"),
-//            
-//            "IsNotAssignableTo" => isGeneric
-//                ? SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotAssignableTo<{genericArgs}>()")
-//                : SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotAssignableTo({expected})"),
-
+			"DoesNotContain" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).DoesNotContain({expected})"),
+			"StartsWith" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).StartsWith({expected})"),
+			"EndsWith" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).EndsWith({expected})"),
+			"NotNull" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsNotNull()"),
+			"Null" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsNull()"),
+			"True" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsTrue()"),
+			"False" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsFalse()"),
+			"Same" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsSameAs({expected})"),
+			"NotSame" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsNotSameAs({expected})"),
 			"IsAssignableFrom" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).Is<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).Is({expected})"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).Is<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).Is({expected})"),
 			"IsNotAssignableFrom" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNot<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNot({expected})"),
-
-			"All" => SyntaxFactory.ParseExpression($"Expect.That({actual}).All().Satisfy({expected})"),
-
-			"Single" => SyntaxFactory.ParseExpression($"Expect.That({actual}).HasSingle()"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsNot<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsNot({expected})"),
+			"All" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).All().Satisfy({expected})"),
+			"Single" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).HasSingle()"),
 			"IsType" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).IsExactly<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).IsExactly({expected})"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsExactly<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsExactly({expected})"),
 			"IsNotType" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotExactly<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotExactly({expected})"),
-
-			"Empty" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsEmpty()"),
-
-			"NotEmpty" => SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEmpty()"),
-
-			"Fail" => SyntaxFactory.ParseExpression("Fail.Test()"),
-
-			"Skip" => SyntaxFactory.ParseExpression("Skip.Test()"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsNotExactly<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsNotExactly({expected})"),
+			"Empty" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsEmpty()"),
+			"NotEmpty" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsNotEmpty()"),
+			"Fail" => SyntaxFactory.ParseExpression(
+				"Fail.Test()"),
+			"Skip" => SyntaxFactory.ParseExpression(
+				"Skip.Test()"),
 			"Throws" or "ThrowsAsync" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).ThrowsExactly<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).ThrowsExactly({expected})"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).ThrowsExactly<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).ThrowsExactly({expected})"),
 			"ThrowsAny" or "ThrowsAnyAsync" => isGeneric
-				? SyntaxFactory.ParseExpression($"Expect.That({actual}).Throws<{genericArgs}>()")
-				: SyntaxFactory.ParseExpression($"Expect.That({actual}).Throws({expected})"),
-
+				? SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).Throws<{genericArgs}>()")
+				: SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).Throws({expected})"),
 			_ => null,
 		};
 	}
