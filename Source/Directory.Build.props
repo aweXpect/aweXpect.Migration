@@ -21,13 +21,6 @@
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-		<IsRoslynComponent>true</IsRoslynComponent>
-		<DevelopmentDependency>false</DevelopmentDependency>
-		<NoPackageAnalysis>true</NoPackageAnalysis>
-		<NoWarn>RS2003</NoWarn>
-		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
-		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<PropertyGroup>

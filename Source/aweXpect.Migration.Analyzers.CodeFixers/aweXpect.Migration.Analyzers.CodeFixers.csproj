@@ -1,6 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<Description>Code fix providers for aweXpect to help with the correct usage.</Description>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<DevelopmentDependency>false</DevelopmentDependency>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<NoWarn>RS2003</NoWarn>
+		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<PropertyGroup>
 		<RootNamespace>aweXpect.Migration.Analyzers</RootNamespace>
 	</PropertyGroup>
 
