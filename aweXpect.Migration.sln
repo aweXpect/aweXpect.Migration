@@ -38,7 +38,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\ci.yml = .github\workflows\ci.yml
-		.github\workflows\ci-analysis.yml = .github\workflows\ci-analysis.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aweXpect.Migration", "Source\aweXpect.Migration\aweXpect.Migration.csproj", "{DA22A80F-C009-481F-A8D0-FB895BEA525B}"
