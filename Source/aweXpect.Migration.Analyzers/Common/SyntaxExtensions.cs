@@ -1,48 +1,47 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace aweXpect.Migration.Analyzers.Common
+namespace aweXpect.Migration.Analyzers.Common;
+
+internal static class SyntaxExtensions
 {
-	internal static class SyntaxExtensions
+	public static IEnumerable<TOutput> GetAllAncestorSyntaxesOfType<TOutput>(this SyntaxNode input)
+		where TOutput : SyntaxNode
 	{
-		public static IEnumerable<TOutput> GetAllAncestorSyntaxesOfType<TOutput>(this SyntaxNode input) 
-			where TOutput : SyntaxNode
+		SyntaxNode? parent = input.Parent;
+
+		while (parent != null)
 		{
-			var parent = input.Parent;
-        
-			while (parent != null)
+			if (parent is TOutput output)
 			{
-				if (parent is TOutput output)
-				{
-					yield return output;
-				}
-            
-				parent = parent.Parent;
-			}
-		}
-    
-		public static TOutput? GetAncestorSyntaxOfType<TOutput>(this SyntaxNode input) 
-			where TOutput : SyntaxNode
-		{
-			var parent = input.Parent;
-        
-			while (parent != null && parent is not TOutput)
-			{
-				parent = parent.Parent;
+				yield return output;
 			}
 
-			return parent as TOutput;
+			parent = parent.Parent;
 		}
-        
-		public static IEnumerable<IOperation> GetAncestorOperations(this IOperation operation) 
+	}
+
+	public static TOutput? GetAncestorSyntaxOfType<TOutput>(this SyntaxNode input)
+		where TOutput : SyntaxNode
+	{
+		SyntaxNode? parent = input.Parent;
+
+		while (parent != null && parent is not TOutput)
 		{
-			var parent = operation.Parent;
-        
-			while (parent != null)
-			{
-				yield return parent;
-				parent = parent.Parent;
-			}
+			parent = parent.Parent;
+		}
+
+		return parent as TOutput;
+	}
+
+	public static IEnumerable<IOperation> GetAncestorOperations(this IOperation operation)
+	{
+		IOperation? parent = operation.Parent;
+
+		while (parent != null)
+		{
+			yield return parent;
+			parent = parent.Parent;
 		}
 	}
 }

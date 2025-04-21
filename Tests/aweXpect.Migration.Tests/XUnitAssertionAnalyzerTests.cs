@@ -1,5 +1,6 @@
 ﻿using aweXpect.Migration.Analyzers;
-using Verifier = aweXpect.Migration.Tests.Verifiers.CSharpAnalyzerVerifier<aweXpect.Migration.Analyzers.XUnitAssertionAnalyzer>;
+using Verifier =
+	aweXpect.Migration.Tests.Verifiers.CSharpAnalyzerVerifier<aweXpect.Migration.Analyzers.XUnitAssertionAnalyzer>;
 
 namespace aweXpect.Migration.Tests;
 

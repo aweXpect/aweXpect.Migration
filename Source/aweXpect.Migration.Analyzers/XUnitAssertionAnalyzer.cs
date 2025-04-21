@@ -10,18 +10,21 @@ namespace aweXpect.Migration.Analyzers;
 ///     An analyzer that flags most xunit assertions.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class XUnitAssertionAnalyzer : ConcurrentDiagnosticAnalyzer
+public class XUnitAssertionAnalyzer : DiagnosticAnalyzer
 {
 	/// <inheritdoc />
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
 		ImmutableArray.Create(Rules.XUnitAssertionRule);
 
 	/// <inheritdoc />
-	protected override void InitializeInternal(AnalysisContext context)
+	public override void Initialize(AnalysisContext context)
 	{
+		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+		context.EnableConcurrentExecution();
+
 		context.RegisterOperationAction(AnalyzeOperation, OperationKind.Invocation);
 	}
-    
+
 	private static void AnalyzeOperation(OperationAnalysisContext context)
 	{
 		if (context.Operation is not IInvocationOperation invocationOperation)
@@ -29,15 +32,15 @@ public class XUnitAssertionAnalyzer : ConcurrentDiagnosticAnalyzer
 			return;
 		}
 
-		var methodSymbol = invocationOperation.TargetMethod;
+		IMethodSymbol? methodSymbol = invocationOperation.TargetMethod;
 
-		var fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
+		string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
 
 		if (fullyQualifiedNonGenericMethodName.StartsWith("global::Xunit.Assert."))
 		{
 			context.ReportDiagnostic(
 				Diagnostic.Create(Rules.XUnitAssertionRule, context.Operation.Syntax.GetLocation())
-			);   
+			);
 		}
 	}
 }

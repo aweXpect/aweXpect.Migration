@@ -17,5 +17,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\aweXpect.Migration.Analyzers\aweXpect.Migration.Analyzers.csproj"/>
 	</ItemGroup>
-	
+
 </Project>
