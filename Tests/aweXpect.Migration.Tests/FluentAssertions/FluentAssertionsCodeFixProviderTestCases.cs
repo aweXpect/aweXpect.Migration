@@ -128,11 +128,17 @@ public static class FluentAssertionsCodeFixProviderTestCases
 			"subject.Should().BeGreaterThan(expected, {0})",
 			"Expect.That(subject).IsGreaterThan(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
+			"subject.Should().BeGreaterOrEqualTo(expected, {0})",
+			"Expect.That(subject).IsGreaterThanOrEqualTo(expected)");
+		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeGreaterThanOrEqualTo(expected, {0})",
 			"Expect.That(subject).IsGreaterThanOrEqualTo(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeLessThan(expected, {0})",
 			"Expect.That(subject).IsLessThan(expected)");
+		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
+			"subject.Should().BeLessOrEqualTo(expected, {0})",
+			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeLessThanOrEqualTo(expected, {0})",
 			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
