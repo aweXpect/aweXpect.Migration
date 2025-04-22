@@ -95,8 +95,9 @@ public class FluentAssertionsCodeFixProviderTests
 		=> new TheoryData<string, string, string, bool>()
 			.AddBasicTestCases()
 			.AddBooleanTestCases()
-			.AddStringTestCases()
-			.AddNumberTestCases()
 			.AddChronologyTestCases()
-			.AddExceptionsTestCases();
+			.AddCollectionTestCases()
+			.AddExceptionsTestCases()
+			.AddNumberTestCases()
+			.AddStringTestCases();
 }

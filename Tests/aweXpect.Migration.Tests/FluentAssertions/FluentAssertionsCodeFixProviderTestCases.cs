@@ -20,6 +20,12 @@ public static class FluentAssertionsCodeFixProviderTestCases
 		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
 			"subject.Should().NotBeSameAs(unexpected, {0})",
 			"Expect.That(subject).IsNotSameAs(unexpected)");
+		theoryData.AddWithBecause("object subject = new object();object expected = new object();",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEquivalentTo(expected)");
+		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
+			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
+			"Expect.That(subject).IsNotEquivalentTo(unexpected)");
 		theoryData.AddWithBecause("object subject = new Exception();",
 			"subject.Should().BeAssignableTo<ArgumentException>({0})",
 			"Expect.That(subject).Is<ArgumentException>()");
@@ -68,6 +74,18 @@ public static class FluentAssertionsCodeFixProviderTestCases
 		theoryData.AddWithBecause("bool? subject = null;",
 			"subject.Should().NotBeFalse({0})",
 			"Expect.That(subject).IsNotFalse()");
+		return theoryData;
+	}
+
+	/// <summary>
+	///     <see href="https://fluentassertions.com/collections/" />
+	/// </summary>
+	internal static TheoryData<string, string, string, bool> AddCollectionTestCases(
+		this TheoryData<string, string, string, bool> theoryData)
+	{
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().HaveCount(1, {0})",
+			"Expect.That(subject).HasCount(1)");
 		return theoryData;
 	}
 
