@@ -9,7 +9,7 @@ internal static class Rules
 	public static readonly DiagnosticDescriptor FluentAssertionsRule =
 		CreateDescriptor("aweXpectM002", UsageCategory, DiagnosticSeverity.Warning);
 
-	public static readonly DiagnosticDescriptor XUnitAssertionRule =
+	public static readonly DiagnosticDescriptor XunitAssertionRule =
 		CreateDescriptor("aweXpectM003", UsageCategory, DiagnosticSeverity.Warning);
 
 

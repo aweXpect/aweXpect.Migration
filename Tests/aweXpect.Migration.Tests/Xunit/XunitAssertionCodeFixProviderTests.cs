@@ -11,6 +11,10 @@ public class XunitAssertionCodeFixProviderTests
 		"Expect.That(false).IsTrue()")]
 	[InlineData("Assert.False(true)",
 		"Expect.That(true).IsFalse()")]
+	[InlineData("Assert.True(false, \"foo\")",
+		"Expect.That(false).IsTrue().Because(\"foo\")")]
+	[InlineData("Assert.False(true, \"foo\")",
+		"Expect.That(true).IsFalse().Because(\"foo\")")]
 	[InlineData("Assert.Null(new object())",
 		"Expect.That(new object()).IsNull()")]
 	[InlineData("Assert.NotNull(new object())",
@@ -31,6 +35,8 @@ public class XunitAssertionCodeFixProviderTests
 		"Expect.That(\"foo\").IsEmpty()")]
 	[InlineData("Assert.NotEmpty(\"foo\")",
 		"Expect.That(\"foo\").IsNotEmpty()")]
+	[InlineData("Assert.Distinct([1, 2,])",
+		"Expect.That([1, 2,]).AreAllUnique()")]
 	[InlineData("Assert.Same(new ArgumentException(), new NullReferenceException())",
 		"Expect.That(new NullReferenceException()).IsSameAs(new ArgumentException())")]
 	[InlineData("Assert.NotSame(new ArgumentException(), new NullReferenceException())",

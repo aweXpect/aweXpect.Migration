@@ -13,7 +13,7 @@ namespace aweXpect.Migration.Analyzers;
 public class XunitAssertionAnalyzer : DiagnosticAnalyzer
 {
 	/// <inheritdoc />
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.XUnitAssertionRule,];
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rules.XunitAssertionRule,];
 
 	/// <inheritdoc />
 	public override void Initialize(AnalysisContext context)
@@ -38,7 +38,7 @@ public class XunitAssertionAnalyzer : DiagnosticAnalyzer
 		if (fullyQualifiedNonGenericMethodName.StartsWith("global::Xunit.Assert."))
 		{
 			context.ReportDiagnostic(
-				Diagnostic.Create(Rules.XUnitAssertionRule, context.Operation.Syntax.GetLocation())
+				Diagnostic.Create(Rules.XunitAssertionRule, context.Operation.Syntax.GetLocation())
 			);
 		}
 	}
