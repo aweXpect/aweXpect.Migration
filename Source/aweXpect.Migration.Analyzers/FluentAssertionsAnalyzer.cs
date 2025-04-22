@@ -39,7 +39,7 @@ public class FluentAssertionsAnalyzer : DiagnosticAnalyzer
 		if (fullyQualifiedNonGenericMethodName.StartsWith("global::FluentAssertions.AssertionExtensions.Should"))
 		{
 			SyntaxNode syntax = context.Operation.Syntax;
-			while (syntax.Parent is ExpressionOrPatternSyntax)
+			while (syntax.Parent is ExpressionOrPatternSyntax && syntax.Parent is not AwaitExpressionSyntax)
 			{
 				syntax = syntax.Parent;
 			}

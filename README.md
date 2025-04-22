@@ -9,8 +9,23 @@ Migration helpers from other assertion libraries to [aweXpect](https://github.co
 
 ## Xunit
 
-*tbd*
+1. Add the `aweXpect.Migration` package reference in addition to the `aweXpect` in the test project.
+2. All usages of `Assert` will be marked with an `aweXpectM003` warning: "Xunit assertions should be migrated to aweXpect"
+3. Most warnings can be automatically fixed with a code fix provider
+4. Fix the remaining warnings manually
+5. Remove the `aweXpect.Migration` package
+
 
 ## FluentAssertions
 
-*tbd*
+1. Add the `aweXpect.Migration` package reference in addition to the `aweXpect` in the test project.
+   Add the following global using statements in the test project:
+   ```csharp
+   global using System.Threading.Tasks;`
+   global using aweXpect;
+   ```
+2. All usages of `.Should()` will be marked with an `aweXpectM002` warning: "fluentassertions should be migrated to aweXpect"
+3. Most warnings can be automatically fixed with a code fix provider
+4. Fix all occurrences of `aweXpect0001`: "Expectations must be awaited or verified"
+5. Fix the remaining warnings manually
+6. Remove the `aweXpect.Migration` package
