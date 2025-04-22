@@ -190,16 +190,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 					$"Expect.That({actual}).IsNotExactly<{genericArgs}>()", 0)
 				: ParseExpressionWithBecause(
 					$"Expect.That({actual}).IsNotExactly({expected})", 1),
+			"NotThrow" or "NotThrowAsync" => ParseExpressionWithBecause(
+					$"Expect.That({actual}).DoesNotThrow()", 0),
 			"Throw" or "ThrowAsync" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).Throws<{genericArgs}>()", 0)
 				: ParseExpressionWithBecause(
 					$"Expect.That({actual}).Throws({expected})", 1),
-			"NotThrow" or "ThrowAsync" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).DoesNotThrow<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).DoesNotThrow({expected})", 1),
 			"ThrowExactly" or "ThrowExactlyAsync" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).ThrowsExactly<{genericArgs}>()", 0)

@@ -96,6 +96,13 @@ public static class FluentAssertionsCodeFixProviderTestCases
 		this TheoryData<string, string, string, bool> theoryData)
 	{
 		theoryData.AddWithBecause("Action callback = () => {};",
+			"callback.Should().NotThrow({0})",
+			"Expect.That(callback).DoesNotThrow()");
+		theoryData.AddWithBecause("Func<Task> callback = () => Task.CompletedTask;",
+			"callback.Should().NotThrowAsync({0})",
+			"Expect.That(callback).DoesNotThrow()",
+			true);
+		theoryData.AddWithBecause("Action callback = () => {};",
 			"callback.Should().Throw<ArgumentException>({0})",
 			"Expect.That(callback).Throws<ArgumentException>()");
 		theoryData.AddWithBecause("Action callback = () => {};",
