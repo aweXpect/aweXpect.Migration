@@ -25,7 +25,7 @@ public class XunitAssertionAnalyzerTests
 			    }
 			}
 			""",
-			Verifier.Diagnostic(Rules.XUnitAssertionRule)
+			Verifier.Diagnostic(Rules.XunitAssertionRule)
 				.WithLocation(0)
 		);
 
@@ -47,7 +47,7 @@ public class XunitAssertionAnalyzerTests
 			    }
 			}
 			""",
-			Verifier.Diagnostic(Rules.XUnitAssertionRule)
+			Verifier.Diagnostic(Rules.XunitAssertionRule)
 				.WithLocation(0)
 		);
 }

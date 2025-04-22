@@ -1,15 +1,12 @@
-﻿using System.Collections.Immutable;
-using System.Composition;
+﻿using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using aweXpect.Migration.Analyzers.Common;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace aweXpect.Migration.Analyzers;
 
@@ -18,41 +15,10 @@ namespace aweXpect.Migration.Analyzers;
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(XunitAssertionCodeFixProvider))]
 [Shared]
-public class XunitAssertionCodeFixProvider : CodeFixProvider
+public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.XunitAssertionRule)
 {
 	/// <inheritdoc />
-	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = [Rules.XUnitAssertionRule.Id,];
-
-	/// <inheritdoc />
-	public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-	/// <inheritdoc />
-	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-	{
-		foreach (Diagnostic? diagnostic in context.Diagnostics)
-		{
-			TextSpan diagnosticSpan = diagnostic.Location.SourceSpan;
-
-			SyntaxNode? root =
-				await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
-			SyntaxNode? diagnosticNode = root?.FindNode(diagnosticSpan);
-
-			if (diagnosticNode is not InvocationExpressionSyntax expressionSyntax)
-			{
-				return;
-			}
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					Resources.aweXpectM003CodeFixTitle,
-					c => ConvertAssertionAsync(context, expressionSyntax, c),
-					nameof(XunitAssertionCodeFixProvider)),
-				diagnostic);
-		}
-	}
-
-	private static async Task<Document> ConvertAssertionAsync(CodeFixContext context,
+	protected override async Task<Document> ConvertAssertionAsync(CodeFixContext context,
 		InvocationExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
 	{
 		Document? document = context.Document;
@@ -112,11 +78,17 @@ public class XunitAssertionCodeFixProvider : CodeFixProvider
 			"Null" => SyntaxFactory.ParseExpression(
 				$"Expect.That({actual}).IsNull()"),
 			"True" => SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).IsTrue()"),
+				actual == expected
+					? $"Expect.That({actual}).IsTrue()"
+					: $"Expect.That({expected}).IsTrue().Because({actual})"),
 			"False" => SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).IsFalse()"),
+				actual == expected
+					? $"Expect.That({actual}).IsFalse()"
+					: $"Expect.That({expected}).IsFalse().Because({actual})"),
 			"Same" => SyntaxFactory.ParseExpression(
 				$"Expect.That({actual}).IsSameAs({expected})"),
+			"Distinct" => SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).AreAllUnique()"),
 			"NotSame" => SyntaxFactory.ParseExpression(
 				$"Expect.That({actual}).IsNotSameAs({expected})"),
 			"IsAssignableFrom" => isGeneric

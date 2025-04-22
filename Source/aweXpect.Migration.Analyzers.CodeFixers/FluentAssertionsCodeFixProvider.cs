@@ -1,14 +1,11 @@
-﻿using System.Collections.Immutable;
-using System.Composition;
+﻿using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace aweXpect.Migration.Analyzers;
 
@@ -17,41 +14,10 @@ namespace aweXpect.Migration.Analyzers;
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(FluentAssertionsCodeFixProvider))]
 [Shared]
-public class FluentAssertionsCodeFixProvider : CodeFixProvider
+public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.FluentAssertionsRule)
 {
 	/// <inheritdoc />
-	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = [Rules.FluentAssertionsRule.Id,];
-
-	/// <inheritdoc />
-	public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-	/// <inheritdoc />
-	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-	{
-		foreach (Diagnostic? diagnostic in context.Diagnostics)
-		{
-			TextSpan diagnosticSpan = diagnostic.Location.SourceSpan;
-
-			SyntaxNode? root =
-				await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
-			SyntaxNode? diagnosticNode = root?.FindNode(diagnosticSpan);
-
-			if (diagnosticNode is not InvocationExpressionSyntax expressionSyntax)
-			{
-				return;
-			}
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					Resources.aweXpectM002CodeFixTitle,
-					c => ConvertAssertionAsync(context, expressionSyntax, c),
-					nameof(FluentAssertionsCodeFixProvider)),
-				diagnostic);
-		}
-	}
-
-	private static async Task<Document> ConvertAssertionAsync(CodeFixContext context,
+	protected override async Task<Document> ConvertAssertionAsync(CodeFixContext context,
 		InvocationExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
 	{
 		Document? document = context.Document;
