@@ -62,6 +62,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return document.WithSyntaxRoot(compilationUnit);
 	}
 
+#pragma warning disable S3776
 	private static ExpressionSyntax? GetNewExpression(CodeFixContext context,
 		MemberAccessExpressionSyntax memberAccessExpressionSyntax, string method,
 		string? actual, ArgumentSyntax? expected, string genericArgs,
@@ -73,12 +74,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			if (becauseIndex.HasValue)
 			{
-				var because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value);
+				ArgumentSyntax? because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value);
 				if (because != null)
 				{
 					expression += $".Because({because})";
 				}
 			}
+
 			return SyntaxFactory.ParseExpression(expression);
 		}
 
@@ -206,7 +208,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			_ => null,
 		};
 	}
-	
+#pragma warning restore S3776
+
 	private static string GetGenericArguments(ExpressionSyntax expressionSyntax)
 	{
 		if (expressionSyntax is GenericNameSyntax genericName)

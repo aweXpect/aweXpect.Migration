@@ -55,6 +55,7 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 		return document.WithSyntaxRoot(compilationUnit);
 	}
 
+#pragma warning disable S3776
 	private static async Task<ExpressionSyntax?> GetNewExpression(CodeFixContext context,
 		MemberAccessExpressionSyntax memberAccessExpressionSyntax, string method,
 		ArgumentSyntax? actual, ArgumentSyntax? expected, string genericArgs,
@@ -132,6 +133,7 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 			_ => null,
 		};
 	}
+#pragma warning restore S3776
 
 	private static async Task<ExpressionSyntax> IsNotEqualTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
