@@ -212,27 +212,24 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual).Symbol;
 		if (semanticModel is not null && actualSymbol is not null &&
-		    GetType(actualSymbol) is { } actualSymbolType)
+		    GetType(actualSymbol) is { } actualSymbolType && IsEnumerable(actualSymbolType))
 		{
-			if (IsEnumerable(actualSymbolType))
+			string expressionSuffix = "";
+			int becauseIndex = 1;
+			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
+			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
 			{
-				string expressionSuffix = "";
-				int becauseIndex = 1;
-				string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
-				if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
+				if (secondArgument.Contains(".WithoutStrictOrdering()"))
 				{
-					if (secondArgument.Contains(".WithoutStrictOrdering()"))
-					{
-						expressionSuffix = ".InAnyOrder()";
-					}
-
-					becauseIndex++;
+					expressionSuffix = ".InAnyOrder()";
 				}
 
-				return ParseExpressionWithBecauseSupport(argumentListArguments,
-					$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
-					becauseIndex);
+				becauseIndex++;
 			}
+
+			return ParseExpressionWithBecauseSupport(argumentListArguments,
+				$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
+				becauseIndex);
 		}
 
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
