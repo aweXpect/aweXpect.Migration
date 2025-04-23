@@ -16,6 +16,7 @@ public class FluentAssertionsCodeFixProviderTests
 		.VerifyCodeFixAsync(
 			$$"""
 			  using System;
+			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using FluentAssertions;
@@ -34,6 +35,7 @@ public class FluentAssertionsCodeFixProviderTests
 			  """,
 			$$"""
 			  using System;
+			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using FluentAssertions;
