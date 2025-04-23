@@ -23,9 +23,21 @@ public static class FluentAssertionsCodeFixProviderTestCases
 		theoryData.AddWithBecause("object subject = new object();object expected = new object();",
 			"subject.Should().BeEquivalentTo(expected, {0})",
 			"Expect.That(subject).IsEquivalentTo(expected)");
+		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected)");
+		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
+			"Expect.That(subject).IsEqualTo(expected)");
+		theoryData.AddWithBecause("int[] subject = [];int[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, o => o.WithoutStrictOrdering(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
 		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
 			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
 			"Expect.That(subject).IsNotEquivalentTo(unexpected)");
+		theoryData.AddWithBecause("int[] subject = [];int[] unexpected = [];",
+			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
+			"Expect.That(subject).IsNotEqualTo(unexpected)");
 		theoryData.AddWithBecause("object subject = new Exception();",
 			"subject.Should().BeAssignableTo<ArgumentException>({0})",
 			"Expect.That(subject).Is<ArgumentException>()");
