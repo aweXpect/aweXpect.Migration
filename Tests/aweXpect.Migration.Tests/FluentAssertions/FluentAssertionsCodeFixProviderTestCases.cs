@@ -149,6 +149,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeLessThanOrEqualTo(expected, {0})",
 			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
+		theoryData.AddWithBecause("double subject = 1.1;double expected = 1.0;double tolerance = 0.05;",
+			"subject.Should().BeApproximately(expected, tolerance, {0})",
+			"Expect.That(subject).IsEqualTo(expected).Within(tolerance)");
 		return theoryData;
 	}
 

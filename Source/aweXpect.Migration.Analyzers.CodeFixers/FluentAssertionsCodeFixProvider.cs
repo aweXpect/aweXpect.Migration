@@ -134,6 +134,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsLessThanOrEqualTo({expected})", 1),
 			"BeLessThanOrEqualTo" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsLessThanOrEqualTo({expected})", 1),
+			"BeApproximately" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).IsEqualTo({expected}).Within({argumentListArguments.ElementAtOrDefault(1)})", 2),
 			"BeAfter" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsAfter({expected})", 1),
 			"BeOnOrAfter" => ParseExpressionWithBecause(
