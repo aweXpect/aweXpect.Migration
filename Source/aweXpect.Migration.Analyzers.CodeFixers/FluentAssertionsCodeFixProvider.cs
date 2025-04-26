@@ -34,7 +34,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		ExpressionSyntaxWalker walker = new(expressionSyntax is ConditionalAccessExpressionSyntax);
 		walker.Visit(expressionSyntax);
 		ExpressionSyntax? actual = walker.Subject;
-		if (actual is null || walker.MainMethod is null)
+		if (actual is null || walker.Methods.Count == 0)
 		{
 			return document;
 		}
@@ -45,16 +45,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			nodeToReplace = lambdaExpressionSyntax.Body;
 		}
 
-		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = walker.MainMethod;
-		ArgumentSyntax? expected = walker.MainMethodArguments.ElementAtOrDefault(0);
-
-		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
-
-		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
-
 		ExpressionSyntax? newExpression = await GetNewExpression(context,
-			methodName, actual, expected, genericArgs, walker.MainMethodArguments,
-			expressionSyntax is LambdaExpressionSyntax);
+			actual, walker.Methods, expressionSyntax is LambdaExpressionSyntax);
 
 		if (newExpression != null)
 		{
@@ -68,28 +60,32 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 #pragma warning disable S3776
 	private static async Task<ExpressionSyntax?> GetNewExpression(
 		CodeFixContext context,
-		string method,
 		ExpressionSyntax actual,
-		ArgumentSyntax? expected,
-		string genericArgs,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		Stack<MethodDefinition> methods,
 		bool wrapSynchronously)
 	{
+		MethodDefinition? mainMethod = methods.Pop();
+		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = mainMethod.Method;
+		ArgumentSyntax? expected = mainMethod.Arguments.ElementAtOrDefault(0);
+
+		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
+		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
 		bool isGeneric = !string.IsNullOrEmpty(genericArgs);
 
 		ExpressionSyntax? ParseExpressionWithBecause(string expression, int? becauseIndex = null)
-			=> ParseExpressionWithBecauseSupport(argumentListArguments, expression, wrapSynchronously, becauseIndex);
+			=> ParseExpressionWithBecauseSupport(mainMethod.Arguments, expression, methods, wrapSynchronously,
+				becauseIndex);
 
-		return method switch
+		return methodName switch
 		{
 			"Be" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsEqualTo({expected})", 1),
 			"NotBe" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsNotEqualTo({expected})", 1),
-			"BeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected,
-				wrapSynchronously),
-			"NotBeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected,
-				wrapSynchronously, true),
+			"BeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods, wrapSynchronously),
+			"NotBeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods, wrapSynchronously, true),
 			"Contain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).Contains({expected})", 1),
 			"NotContain" => ParseExpressionWithBecause(
@@ -131,7 +127,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			"BeLessThanOrEqualTo" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsLessThanOrEqualTo({expected})", 1),
 			"BeApproximately" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsEqualTo({expected}).Within({argumentListArguments.ElementAtOrDefault(1)})",
+				$"Expect.That({actual}).IsEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
 				2),
 			"BeAfter" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsAfter({expected})", 1),
@@ -226,7 +222,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 	private static async Task<ExpressionSyntax?> BeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, bool wrapSynchronously, bool negated = false)
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously,
+		bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual).Symbol;
@@ -248,18 +245,29 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 			return ParseExpressionWithBecauseSupport(argumentListArguments,
 				$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
-				wrapSynchronously, becauseIndex);
+				methods, wrapSynchronously, becauseIndex);
 		}
 
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
 			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
-			wrapSynchronously, 1);
+			methods, wrapSynchronously, 1);
 	}
 
 	private static ExpressionSyntax? ParseExpressionWithBecauseSupport(
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments, string expression, bool wrapSynchronously,
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		string expression,
+		Stack<MethodDefinition> methods,
+		bool wrapSynchronously,
 		int? becauseIndex = null)
 	{
+		if (methods.Count > 0)
+		{
+			foreach (MethodDefinition? method in methods)
+			{
+				expression += ParseAdditionalMethodExpression(method);
+			}
+		}
+
 		if (becauseIndex.HasValue)
 		{
 			string? because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value)?.ToString();
@@ -285,6 +293,16 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		}
 
 		return SyntaxFactory.ParseExpression(expression);
+	}
+
+	private static string ParseAdditionalMethodExpression(MethodDefinition method)
+	{
+		string? methodName = method.Method.Name.Identifier.ValueText;
+		return methodName switch
+		{
+			"WithMessage" => $".WithMessage({method.Arguments.ElementAtOrDefault(0)}).AsWildcard()",
+			_ => "",
+		};
 	}
 
 	private static ITypeSymbol? GetType(ISymbol symbol)
@@ -339,26 +357,33 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return string.Empty;
 	}
 
+	internal class MethodDefinition
+	{
+		public MethodDefinition(MemberAccessExpressionSyntax method)
+		{
+			Method = method;
+			if (method?.Parent is InvocationExpressionSyntax invocationExpressionSyntax)
+			{
+				Arguments = invocationExpressionSyntax.ArgumentList.Arguments;
+			}
+			else
+			{
+				Arguments = [];
+			}
+		}
+
+		public MemberAccessExpressionSyntax Method { get; }
+		public SeparatedSyntaxList<ArgumentSyntax> Arguments { get; }
+	}
+
 	private sealed class ExpressionSyntaxWalker(bool isConditional) : SyntaxWalker
 	{
 		private bool _isConditional = isConditional;
 		private bool _isShould;
 		private string _subjectString = "";
 		public ExpressionSyntax? Subject { get; private set; }
-		public MemberAccessExpressionSyntax? MainMethod { get; private set; }
 
-		public SeparatedSyntaxList<ArgumentSyntax> MainMethodArguments
-		{
-			get
-			{
-				if (MainMethod?.Parent is InvocationExpressionSyntax invocationExpressionSyntax)
-				{
-					return invocationExpressionSyntax.ArgumentList.Arguments;
-				}
-
-				return [];
-			}
-		}
+		public Stack<MethodDefinition> Methods { get; } = [];
 
 		public override void Visit(SyntaxNode node)
 		{
@@ -401,7 +426,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				}
 				else
 				{
-					MainMethod = memberAccessExpressionSyntax;
+					Methods.Push(new MethodDefinition(memberAccessExpressionSyntax));
 				}
 			}
 

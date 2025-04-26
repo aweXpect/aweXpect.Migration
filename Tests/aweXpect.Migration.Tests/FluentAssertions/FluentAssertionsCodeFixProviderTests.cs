@@ -241,6 +241,47 @@ public class FluentAssertionsCodeFixProviderTests
 			"""
 		);
 
+	[Fact]
+	public async Task ThrowsWithMessage_ShouldApplyCorrectCodeFix() => await Verifier
+		.VerifyCodeFixAsync(
+			"""
+			using System;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyClass
+			{
+			    [Theory]
+			    [InlineData("bar")]
+			    public void MyTest(string expected)
+			    {
+			        Action callback = () => {};
+			        
+			        [|callback.Should().Throw<ArgumentException>().WithMessage("foo*")|];
+			    }
+			}
+			""",
+			"""
+			using System;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyClass
+			{
+			    [Theory]
+			    [InlineData("bar")]
+			    public void MyTest(string expected)
+			    {
+			        Action callback = () => {};
+			        
+			        Expect.That(callback).Throws<ArgumentException>().WithMessage("foo*").AsWildcard();
+			    }
+			}
+			"""
+		);
+
 	private static async Task VerifyTestCase(
 		string fluentAssertions,
 		string aweXpect,
