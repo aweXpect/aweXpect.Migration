@@ -7,52 +7,60 @@ namespace aweXpect.Migration.Tests.FluentAssertions;
 public class FluentAssertionsCodeFixProviderTests
 {
 	[Theory]
-	[MemberData(nameof(GetTestCases))]
-	public async Task ShouldApplyCodeFixForSynchronousTestCases(
+	[MemberData(nameof(TestCases.Basic), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForBasicTestCases(
 		string fluentAssertions,
 		string aweXpect,
 		string arrange,
-		bool isAsync) => await Verifier
-		.VerifyCodeFixAsync(
-			$$"""
-			  using System;
-			  using System.Collections.Generic;
-			  using System.Threading.Tasks;
-			  using aweXpect;
-			  using FluentAssertions;
-			  using Xunit;
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
 
-			  public class MyClass
-			  {
-			      [Fact]
-			      public {{(isAsync ? "async Task" : "void")}} MyTest()
-			      {
-			          {{arrange}}
-			          
-			          {{(isAsync ? "await " : "")}}[|{{fluentAssertions}}|];
-			      }
-			  }
-			  """,
-			$$"""
-			  using System;
-			  using System.Collections.Generic;
-			  using System.Threading.Tasks;
-			  using aweXpect;
-			  using FluentAssertions;
-			  using Xunit;
+	[Theory]
+	[MemberData(nameof(TestCases.Boolean), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForBooleanTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
 
-			  public class MyClass
-			  {
-			      [Fact]
-			      public {{(isAsync ? "async Task" : "void")}} MyTest()
-			      {
-			          {{arrange}}
-			          
-			          {{(isAsync ? "await " : "")}}{{aweXpect}};
-			      }
-			  }
-			  """
-		);
+	[Theory]
+	[MemberData(nameof(TestCases.Chronology), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForChronologyTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
+	[MemberData(nameof(TestCases.Collection), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForCollectionTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
+	[MemberData(nameof(TestCases.Exceptions), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForExceptionsTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
+	[MemberData(nameof(TestCases.Numbers), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForNumbersTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
+	[MemberData(nameof(TestCases.Strings), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForStringsTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
 
 	[Fact]
 	public async Task ShouldApplyCodeFixInTheory() => await Verifier
@@ -92,6 +100,48 @@ public class FluentAssertionsCodeFixProviderTests
 			}
 			"""
 		);
+
+	[Fact]
+	public async Task ShouldSupportActions() => await Verifier
+		.VerifyCodeFixAsync(
+			"""
+			using System;
+			using System.Threading.Tasks;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        Action action = [|() => true.Should().BeTrue()|];
+			        
+			        action();
+			    }
+			}
+			""",
+			"""
+			using System;
+			using System.Threading.Tasks;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        Action action = () => aweXpect.Synchronous.Synchronously.Verify(Expect.That(true).IsTrue());
+			        
+			        action();
+			    }
+			}
+			"""
+		);
+
 
 	[Fact]
 	public async Task ShouldSupportNullablePropertyAccess() => await Verifier
@@ -146,13 +196,49 @@ public class FluentAssertionsCodeFixProviderTests
 			"""
 		);
 
-	public static TheoryData<string, string, string, bool> GetTestCases()
-		=> new TheoryData<string, string, string, bool>()
-			.AddBasicTestCases()
-			.AddBooleanTestCases()
-			.AddChronologyTestCases()
-			.AddCollectionTestCases()
-			.AddExceptionsTestCases()
-			.AddNumberTestCases()
-			.AddStringTestCases();
+	private static async Task VerifyTestCase(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await Verifier
+		.VerifyCodeFixAsync(
+			$$"""
+			  using System;
+			  using System.Collections.Generic;
+			  using System.Threading.Tasks;
+			  using aweXpect;
+			  using FluentAssertions;
+			  using Xunit;
+
+			  public class MyClass
+			  {
+			      [Fact]
+			      public {{(isAsync ? "async Task" : "void")}} MyTest()
+			      {
+			          {{arrange}}
+			          
+			          {{(isAsync ? "await " : "")}}[|{{fluentAssertions}}|];
+			      }
+			  }
+			  """,
+			$$"""
+			  using System;
+			  using System.Collections.Generic;
+			  using System.Threading.Tasks;
+			  using aweXpect;
+			  using FluentAssertions;
+			  using Xunit;
+
+			  public class MyClass
+			  {
+			      [Fact]
+			      public {{(isAsync ? "async Task" : "void")}} MyTest()
+			      {
+			          {{arrange}}
+			          
+			          {{(isAsync ? "await " : "")}}{{aweXpect}};
+			      }
+			  }
+			  """
+		);
 }

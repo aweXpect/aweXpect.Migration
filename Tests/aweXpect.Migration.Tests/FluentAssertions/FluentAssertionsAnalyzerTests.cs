@@ -7,6 +7,31 @@ namespace aweXpect.Migration.Tests.FluentAssertions;
 public class FluentAssertionsAnalyzerTests
 {
 	[Fact]
+	public async Task ShouldSupportActions() => await Verifier
+		.VerifyAnalyzerAsync(
+			"""
+			using System;
+			using System.Threading.Tasks;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        Action action = {|#0:() => true.Should().BeTrue()|};
+			        
+			        action();
+			    }
+			}
+			""",
+			Verifier.Diagnostic(Rules.FluentAssertionsRule)
+				.WithLocation(0)
+		);
+
+	[Fact]
 	public async Task WhenUsingAssertEqual_ShouldBeFlagged() => await Verifier
 		.VerifyAnalyzerAsync(
 			"""
