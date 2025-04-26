@@ -36,7 +36,8 @@ public class FluentAssertionsAnalyzer : DiagnosticAnalyzer
 
 		string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
 
-		if (fullyQualifiedNonGenericMethodName.StartsWith("global::FluentAssertions.AssertionExtensions.Should"))
+		if (fullyQualifiedNonGenericMethodName.StartsWith("global::FluentAssertions") &&
+		    fullyQualifiedNonGenericMethodName.EndsWith("Should"))
 		{
 			SyntaxNode syntax = context.Operation.Syntax;
 			while (syntax.Parent is ExpressionOrPatternSyntax && syntax.Parent is not AwaitExpressionSyntax)
