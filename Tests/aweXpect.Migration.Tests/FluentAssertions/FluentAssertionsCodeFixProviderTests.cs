@@ -93,6 +93,59 @@ public class FluentAssertionsCodeFixProviderTests
 			"""
 		);
 
+	[Fact]
+	public async Task ShouldSupportNullablePropertyAccess() => await Verifier
+		.VerifyCodeFixAsync(
+			"""
+			using System;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Theory]
+			    [InlineData("bar")]
+			    public void MyTest(string expected)
+			    {
+			        MyClass subject = new();
+			        
+			        [|subject?.Inner?.NewInner()?.Value.Should().Be(expected)|];
+			    }
+			    private class MyClass
+			    {
+			        public MyClass NewInner() => new MyClass();
+			        public MyClass Inner => null;
+			        public string Value => "";
+			    }
+			}
+			""",
+			"""
+			using System;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Theory]
+			    [InlineData("bar")]
+			    public void MyTest(string expected)
+			    {
+			        MyClass subject = new();
+			        
+			        Expect.That(subject?.Inner?.NewInner()?.Value).IsEqualTo(expected);
+			    }
+			    private class MyClass
+			    {
+			        public MyClass NewInner() => new MyClass();
+			        public MyClass Inner => null;
+			        public string Value => "";
+			    }
+			}
+			"""
+		);
+
 	public static TheoryData<string, string, string, bool> GetTestCases()
 		=> new TheoryData<string, string, string, bool>()
 			.AddBasicTestCases()

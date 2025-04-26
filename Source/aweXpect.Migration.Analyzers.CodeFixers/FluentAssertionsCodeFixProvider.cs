@@ -1,4 +1,5 @@
-﻿using System.Composition;
+﻿using System.Collections.Generic;
+using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 {
 	/// <inheritdoc />
 	protected override async Task<Document> ConvertAssertionAsync(CodeFixContext context,
-		InvocationExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
+		ExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
 	{
 		Document? document = context.Document;
 
@@ -30,33 +31,27 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return document;
 		}
 
-		if (expressionSyntax.Expression is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+		ExpressionSyntax? newExpression = null;
+		if (expressionSyntax is InvocationExpressionSyntax or ConditionalAccessExpressionSyntax)
 		{
-			return document;
+			ExpressionSyntaxWalker walker = new(expressionSyntax is ConditionalAccessExpressionSyntax);
+			walker.Visit(expressionSyntax);
+			ExpressionSyntax? actual = walker.Subject;
+			if (actual is null || walker.MainMethod is null)
+			{
+				return document;
+			}
+
+			MemberAccessExpressionSyntax? memberAccessExpressionSyntax = walker.MainMethod;
+			ArgumentSyntax? expected = walker.MainMethodArguments.ElementAtOrDefault(0);
+
+			string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
+
+			string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
+
+			newExpression = await GetNewExpression(context,
+				methodName, actual, expected, genericArgs, walker.MainMethodArguments);
 		}
-
-		ExpressionOrPatternSyntax topmostExpression = expressionSyntax.Expression;
-		while (topmostExpression.Parent is ExpressionOrPatternSyntax parent)
-		{
-			topmostExpression = parent;
-		}
-
-		ArgumentSyntax? expected = expressionSyntax.ArgumentList.Arguments.ElementAtOrDefault(0);
-
-		ExpressionSyntaxWalker walker = new();
-		walker.Visit(expressionSyntax);
-		ExpressionSyntax? actual = walker.Subject;
-		if (actual is null)
-		{
-			return document;
-		}
-
-		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
-
-		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
-
-		ExpressionSyntax? newExpression = await GetNewExpression(context,
-			methodName, actual, expected, genericArgs, expressionSyntax.ArgumentList.Arguments);
 
 		if (newExpression != null)
 		{
@@ -89,6 +84,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsNotEqualTo({expected})", 1),
 			"BeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected),
 			"NotBeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected, true),
+			"AllBeEquivalentTo" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).All().AreEquivalentTo({expected})", 1),
 			"Contain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).Contains({expected})", 1),
 			"NotContain" => ParseExpressionWithBecause(
@@ -168,6 +165,16 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
+			"AllBeOfType" => isGeneric
+				? ParseExpressionWithBecause(
+					$"Expect.That({actual}).All().AreExactly<{genericArgs}>()", 0)
+				: ParseExpressionWithBecause(
+					$"Expect.That({actual}).All().AreExactly({expected})", 1),
+			"AllBeAssignableTo" => isGeneric
+				? ParseExpressionWithBecause(
+					$"Expect.That({actual}).All().Are<{genericArgs}>()", 0)
+				: ParseExpressionWithBecause(
+					$"Expect.That({actual}).All().Are({expected})", 1),
 			"BeAssignableTo" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).Is<{genericArgs}>()", 0)
@@ -303,26 +310,84 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return string.Empty;
 	}
 
-	private sealed class ExpressionSyntaxWalker : SyntaxWalker
+	private sealed class ExpressionSyntaxWalker(bool isConditional) : SyntaxWalker
 	{
+		private bool _isConditional = isConditional;
 		private bool _isShould;
+		private SeparatedSyntaxList<ArgumentSyntax>? _mainMethodArguments;
+		private string _subjectString = "";
+		public string SubjectPrefix { get; }
 		public ExpressionSyntax? Subject { get; private set; }
+		public MemberAccessExpressionSyntax? MainMethod { get; private set; }
+
+		public SeparatedSyntaxList<ArgumentSyntax> MainMethodArguments
+		{
+			get
+			{
+				if (_mainMethodArguments is not null)
+				{
+					return _mainMethodArguments.Value;
+				}
+
+				if (MainMethod?.Parent is not InvocationExpressionSyntax invocationExpressionSyntax)
+				{
+					return [];
+				}
+
+				return invocationExpressionSyntax.ArgumentList.Arguments;
+			}
+		}
+
+		public List<MemberAccessExpressionSyntax> Methods { get; } = new();
 
 		public override void Visit(SyntaxNode node)
 		{
+			if (_isConditional)
+			{
+				if (_subjectString == "" && node is IdentifierNameSyntax identifierNameSyntax)
+				{
+					_subjectString = identifierNameSyntax.ToString();
+				}
+				if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
+				{
+					_subjectString += "?" +memberBindingExpressionSyntax;
+				}
+
+				if (node is ArgumentListSyntax invocationExpressionSyntax)
+				{
+					_subjectString += invocationExpressionSyntax;
+				}
+			}
+
 			if (_isShould && node is not ParenthesizedExpressionSyntax)
 			{
 				Subject = node as ExpressionSyntax;
 				_isShould = false;
 			}
 
-			if (node is MemberAccessExpressionSyntax identifierNameSyntax &&
-			    identifierNameSyntax.Name.Identifier.ValueText == "Should")
+			if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
 			{
-				_isShould = true;
+				_isShould = memberAccessExpressionSyntax.Name.Identifier.ValueText == "Should";
+				if (_isShould)
+				{
+					if (_isConditional)
+					{
+						Subject = SyntaxFactory.ParseExpression(
+							_subjectString + "?" + memberAccessExpressionSyntax.Expression);
+						_isShould = false;
+						_isConditional = false;
+					}
+				}
+				else
+				{
+					MainMethod = memberAccessExpressionSyntax;
+				}
 			}
 
-			base.Visit(node);
+			if (node is not ArgumentSyntax argumentSyntax)
+			{
+				base.Visit(node);
+			}
 		}
 	}
 }

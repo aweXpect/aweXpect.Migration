@@ -32,17 +32,16 @@ public abstract class AssertionCodeFixProvider(DiagnosticDescriptor rule) : Code
 
 			SyntaxNode? diagnosticNode = root?.FindNode(diagnosticSpan);
 
-			if (diagnosticNode is not InvocationExpressionSyntax expressionSyntax)
+			if (diagnosticNode is ExpressionSyntax expressionSyntax
+			    and (InvocationExpressionSyntax or ConditionalAccessExpressionSyntax))
 			{
-				return;
+				context.RegisterCodeFix(
+					CodeAction.Create(
+						rule.Title.ToString(),
+						c => ConvertAssertionAsync(context, expressionSyntax, c),
+						rule.Id),
+					diagnostic);
 			}
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					rule.Title.ToString(),
-					c => ConvertAssertionAsync(context, expressionSyntax, c),
-					rule.Id),
-				diagnostic);
 		}
 	}
 
@@ -50,5 +49,5 @@ public abstract class AssertionCodeFixProvider(DiagnosticDescriptor rule) : Code
 	///     Converts the assertion.
 	/// </summary>
 	protected abstract Task<Document> ConvertAssertionAsync(CodeFixContext context,
-		InvocationExpressionSyntax expressionSyntax, CancellationToken cancellationToken);
+		ExpressionSyntax expressionSyntax, CancellationToken cancellationToken);
 }

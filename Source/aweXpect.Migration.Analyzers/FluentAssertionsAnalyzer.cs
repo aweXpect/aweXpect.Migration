@@ -44,9 +44,13 @@ public class FluentAssertionsAnalyzer : DiagnosticAnalyzer
 				syntax = syntax.Parent;
 			}
 
-			context.ReportDiagnostic(
-				Diagnostic.Create(Rules.FluentAssertionsRule, syntax.GetLocation())
-			);
+			// Do not report nested `.Should()` e.g. in `.Should().AllSatisfy(x => x.Should().BeGreaterThan(0));`
+			if (syntax.Parent is not ArgumentSyntax)
+			{
+				context.ReportDiagnostic(
+					Diagnostic.Create(Rules.FluentAssertionsRule, syntax.GetLocation())
+				);
+			}
 		}
 	}
 }
