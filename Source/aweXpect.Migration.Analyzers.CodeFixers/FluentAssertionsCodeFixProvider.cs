@@ -253,7 +253,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 					int index = 0;
 					for (int i = becauseIndex.Value + 1; i < argumentListArguments.Count; i++)
 					{
-						because = because.Replace($"{{{index++}}}", $"{{{argumentListArguments.ElementAt(i)}}}");
+						because = because.Replace($"{{{index++}}}", $"{{{argumentListArguments[i]}}}");
 					}
 				}
 
