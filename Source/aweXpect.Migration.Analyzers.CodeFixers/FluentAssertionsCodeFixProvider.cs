@@ -39,6 +39,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return document;
 		}
 
+		SyntaxNode nodeToReplace = expressionSyntax;
+		if (expressionSyntax is LambdaExpressionSyntax lambdaExpressionSyntax)
+		{
+			nodeToReplace = lambdaExpressionSyntax.Body;
+		}
+
 		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = walker.MainMethod;
 		ArgumentSyntax? expected = walker.MainMethodArguments.ElementAtOrDefault(0);
 
@@ -47,12 +53,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
 
 		ExpressionSyntax? newExpression = await GetNewExpression(context,
-			methodName, actual, expected, genericArgs, walker.MainMethodArguments);
+			methodName, actual, expected, genericArgs, walker.MainMethodArguments,
+			expressionSyntax is LambdaExpressionSyntax);
 
 		if (newExpression != null)
 		{
 			compilationUnit =
-				compilationUnit.ReplaceNode(expressionSyntax, newExpression.WithTriviaFrom(expressionSyntax));
+				compilationUnit.ReplaceNode(nodeToReplace, newExpression.WithTriviaFrom(expressionSyntax));
 		}
 
 		return document.WithSyntaxRoot(compilationUnit);
@@ -65,12 +72,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		ExpressionSyntax actual,
 		ArgumentSyntax? expected,
 		string genericArgs,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments)
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		bool wrapSynchronously)
 	{
 		bool isGeneric = !string.IsNullOrEmpty(genericArgs);
 
 		ExpressionSyntax? ParseExpressionWithBecause(string expression, int? becauseIndex = null)
-			=> ParseExpressionWithBecauseSupport(argumentListArguments, expression, becauseIndex);
+			=> ParseExpressionWithBecauseSupport(argumentListArguments, expression, wrapSynchronously, becauseIndex);
 
 		return method switch
 		{
@@ -78,8 +86,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsEqualTo({expected})", 1),
 			"NotBe" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsNotEqualTo({expected})", 1),
-			"BeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected),
-			"NotBeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected, true),
+			"BeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected,
+				wrapSynchronously),
+			"NotBeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected,
+				wrapSynchronously, true),
 			"Contain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).Contains({expected})", 1),
 			"NotContain" => ParseExpressionWithBecause(
@@ -198,7 +208,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 	private static async Task<ExpressionSyntax?> BeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, bool negated = false)
+		ExpressionSyntax actual, ArgumentSyntax? expected, bool wrapSynchronously, bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual).Symbol;
@@ -220,15 +230,17 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 			return ParseExpressionWithBecauseSupport(argumentListArguments,
 				$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
-				becauseIndex);
+				wrapSynchronously, becauseIndex);
 		}
 
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
-			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})", 1);
+			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
+			wrapSynchronously, 1);
 	}
 
 	private static ExpressionSyntax? ParseExpressionWithBecauseSupport(
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments, string expression, int? becauseIndex = null)
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments, string expression, bool wrapSynchronously,
+		int? becauseIndex = null)
 	{
 		if (becauseIndex.HasValue)
 		{
@@ -237,6 +249,11 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			{
 				expression += $".Because({because})";
 			}
+		}
+
+		if (wrapSynchronously)
+		{
+			expression = $"aweXpect.Synchronous.Synchronously.Verify({expression})";
 		}
 
 		return SyntaxFactory.ParseExpression(expression);

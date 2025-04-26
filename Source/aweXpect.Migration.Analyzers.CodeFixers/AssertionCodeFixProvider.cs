@@ -33,7 +33,7 @@ public abstract class AssertionCodeFixProvider(DiagnosticDescriptor rule) : Code
 			SyntaxNode? diagnosticNode = root?.FindNode(diagnosticSpan);
 
 			if (diagnosticNode is ExpressionSyntax expressionSyntax
-			    and (InvocationExpressionSyntax or ConditionalAccessExpressionSyntax))
+			    and (InvocationExpressionSyntax or ConditionalAccessExpressionSyntax or LambdaExpressionSyntax))
 			{
 				context.RegisterCodeFix(
 					CodeAction.Create(

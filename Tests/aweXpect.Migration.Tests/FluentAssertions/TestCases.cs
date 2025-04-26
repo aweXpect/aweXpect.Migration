@@ -1,13 +1,13 @@
 ﻿namespace aweXpect.Migration.Tests.FluentAssertions;
 
-public static class FluentAssertionsCodeFixProviderTestCases
+public static class TestCases
 {
 	/// <summary>
 	///     <see href="https://fluentassertions.com/basicassertions/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddBasicTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Basic()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("object subject = new object();",
 			"subject.Should().BeNull()",
 			"Expect.That(subject).IsNull()");
@@ -68,9 +68,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/booleans/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddBooleanTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Boolean()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("bool subject = false;",
 			"subject.Should().BeTrue({0})",
 			"Expect.That(subject).IsTrue()");
@@ -92,9 +92,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/collections/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddCollectionTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Collection()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().HaveCount(1, {0})",
 			"Expect.That(subject).HasCount(1)");
@@ -104,9 +104,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/exceptions/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddExceptionsTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Exceptions()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("Action callback = () => {};",
 			"callback.Should().NotThrow({0})",
 			"Expect.That(callback).DoesNotThrow()");
@@ -134,9 +134,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/numerictypes/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddNumberTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Numbers()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("int subject = 1;",
 			"subject.Should().BePositive({0})",
 			"Expect.That(subject).IsPositive()");
@@ -170,9 +170,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/datetimespans/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddChronologyTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Chronology()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("DateTime subject = DateTime.Now;DateTime expected = DateTime.Now;",
 			"subject.Should().BeAfter(expected, {0})",
 			"Expect.That(subject).IsAfter(expected)");
@@ -203,9 +203,9 @@ public static class FluentAssertionsCodeFixProviderTestCases
 	/// <summary>
 	///     <see href="https://fluentassertions.com/strings/" />
 	/// </summary>
-	internal static TheoryData<string, string, string, bool> AddStringTestCases(
-		this TheoryData<string, string, string, bool> theoryData)
+	public static TheoryData<string, string, string, bool> Strings()
 	{
+		TheoryData<string, string, string, bool> theoryData = new();
 		theoryData.AddWithBecause("string subject = \"foo\";",
 			"subject.Should().BeNull({0})",
 			"Expect.That(subject).IsNull()");
