@@ -52,4 +52,52 @@ public class FluentAssertionsAnalyzerTests
 			Verifier.Diagnostic(Rules.FluentAssertionsRule)
 				.WithLocation(0)
 		);
+
+	[Fact]
+	public async Task WhenUsingNestedShould_ShouldOnlyBeFlaggedOnce() => await Verifier
+		.VerifyAnalyzerAsync(
+			"""
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        int[] subject = [];
+			        
+			        {|#0:subject.Should().AllSatisfy(item => item.Should().BeGreaterThan(0))|};
+			    }
+			}
+			""",
+			Verifier.Diagnostic(Rules.FluentAssertionsRule)
+				.WithLocation(0)
+		);
+
+	[Fact]
+	public async Task WhenUsingNullableProperties_ShouldBeFlagged() => await Verifier
+		.VerifyAnalyzerAsync(
+			"""
+			using System;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyClass
+			{
+			    [Theory]
+			    [InlineData("bar")]
+			    public void MyTest(string expected)
+			    {
+			        Exception subject = new Exception("foo");
+			        
+			        {|#0:subject?.Message.Should().Be(expected)|};
+			    }
+			}
+			""",
+			Verifier.Diagnostic(Rules.FluentAssertionsRule)
+				.WithLocation(0)
+		);
 }

@@ -19,32 +19,33 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 {
 	/// <inheritdoc />
 	protected override async Task<Document> ConvertAssertionAsync(CodeFixContext context,
-		InvocationExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
+		ExpressionSyntax expressionSyntax, CancellationToken cancellationToken)
 	{
 		Document? document = context.Document;
 
 		SyntaxNode? root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-		if (root is not CompilationUnitSyntax compilationUnit)
+		if (root is not CompilationUnitSyntax compilationUnit ||
+		    expressionSyntax is not InvocationExpressionSyntax invocationExpression)
 		{
 			return document;
 		}
 
-		if (expressionSyntax.Expression is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+		if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
 		{
 			return document;
 		}
 
-		ArgumentSyntax? expected = expressionSyntax.ArgumentList.Arguments.ElementAtOrDefault(0);
-		ArgumentSyntax? actual = expressionSyntax.ArgumentList.Arguments.ElementAtOrDefault(1) ??
-		                         expressionSyntax.ArgumentList.Arguments.ElementAtOrDefault(0);
+		ArgumentSyntax? expected = invocationExpression.ArgumentList.Arguments.ElementAtOrDefault(0);
+		ArgumentSyntax? actual = invocationExpression.ArgumentList.Arguments.ElementAtOrDefault(1) ??
+		                         invocationExpression.ArgumentList.Arguments.ElementAtOrDefault(0);
 
 		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
 
 		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
 
 		ExpressionSyntax? newExpression = await GetNewExpression(context, memberAccessExpressionSyntax, methodName,
-			actual, expected, genericArgs, expressionSyntax.ArgumentList.Arguments);
+			actual, expected, genericArgs, invocationExpression.ArgumentList.Arguments);
 
 		if (newExpression != null)
 		{
