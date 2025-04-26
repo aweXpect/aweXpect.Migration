@@ -262,9 +262,19 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	{
 		if (becauseIndex.HasValue)
 		{
-			ArgumentSyntax? because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value);
+			string? because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value)?.ToString();
 			if (because != null)
 			{
+				if (becauseIndex.Value + 1 < argumentListArguments.Count)
+				{
+					because = $"${because}";
+					int index = 0;
+					for (int i = becauseIndex.Value + 1; i < argumentListArguments.Count; i++)
+					{
+						because = because.Replace($"{{{index++}}}", $"{{{argumentListArguments[i]}}}");
+					}
+				}
+
 				expression += $".Because({because})";
 			}
 		}

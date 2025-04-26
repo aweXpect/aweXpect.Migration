@@ -150,6 +150,43 @@ public class FluentAssertionsCodeFixProviderTests
 			"""
 		);
 
+	[Fact]
+	public async Task ShouldSupportBecauseWithParameters() => await Verifier
+		.VerifyCodeFixAsync(
+			"""
+			using System;
+			using System.Threading.Tasks;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        [|true.Should().BeTrue("Because with {0} {1}", 2, "parameters")|];
+			    }
+			}
+			""",
+			"""
+			using System;
+			using System.Threading.Tasks;
+			using aweXpect;
+			using FluentAssertions;
+			using Xunit;
+
+			public class MyTestClass
+			{
+			    [Fact]
+			    public void MyTest()
+			    {
+			        Expect.That(true).IsTrue().Because($"Because with {2} {"parameters"}");
+			    }
+			}
+			"""
+		);
+
 
 	[Fact]
 	public async Task ShouldSupportNullablePropertyAccess() => await Verifier
