@@ -39,6 +39,14 @@ public class FluentAssertionsCodeFixProviderTests
 		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
 
 	[Theory]
+	[MemberData(nameof(TestCases.Enums), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForEnumsTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
 	[MemberData(nameof(TestCases.Exceptions), MemberType = typeof(TestCases))]
 	public async Task ShouldApplyCodeFixForExceptionsTestCases(
 		string fluentAssertions,

@@ -102,6 +102,39 @@ public static class TestCases
 	}
 
 	/// <summary>
+	///     <see href="https://fluentassertions.com/collections/" />
+	/// </summary>
+	public static TheoryData<string, string, string, bool> Enums()
+	{
+		TheoryData<string, string, string, bool> theoryData = new();
+		theoryData.AddWithBecause("DayOfWeek subject = DayOfWeek.Monday;",
+			"subject.Should().BeDefined({0})",
+			"Expect.That(subject).IsDefined()");
+		theoryData.AddWithBecause("DayOfWeek subject = DayOfWeek.Monday;",
+			"subject.Should().NotBeDefined({0})",
+			"Expect.That(subject).IsNotDefined()");
+		theoryData.AddWithBecause("DayOfWeek? subject = DayOfWeek.Monday;",
+			"subject.Should().HaveValue({0})",
+			"Expect.That(subject).IsNotNull()");
+		theoryData.AddWithBecause("DayOfWeek? subject = DayOfWeek.Monday;",
+			"subject.Should().HaveValue(1, {0})",
+			"Expect.That(subject).HasValue(1)");
+		theoryData.AddWithBecause("DayOfWeek? subject = DayOfWeek.Monday;",
+			"subject.Should().NotHaveValue({0})",
+			"Expect.That(subject).IsNull()");
+		theoryData.AddWithBecause("DayOfWeek? subject = DayOfWeek.Monday;",
+			"subject.Should().NotHaveValue(2, {0})",
+			"Expect.That(subject).DoesNotHaveValue(2)");
+		theoryData.AddWithBecause("DayOfWeek subject = DayOfWeek.Monday;",
+			"subject.Should().HaveFlag(DayOfWeek.Tuesday, {0})",
+			"Expect.That(subject).HasFlag(DayOfWeek.Tuesday)");
+		theoryData.AddWithBecause("DayOfWeek subject = DayOfWeek.Monday;",
+			"subject.Should().NotHaveFlag(DayOfWeek.Tuesday, {0})",
+			"Expect.That(subject).DoesNotHaveFlag(DayOfWeek.Tuesday)");
+		return theoryData;
+	}
+
+	/// <summary>
 	///     <see href="https://fluentassertions.com/exceptions/" />
 	/// </summary>
 	public static TheoryData<string, string, string, bool> Exceptions()

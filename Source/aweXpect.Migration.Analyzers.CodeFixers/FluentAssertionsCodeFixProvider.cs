@@ -163,6 +163,24 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsNotFalse()", 0),
 			"Imply" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).Implies({expected})", 1),
+			"BeDefined" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).IsDefined()", 0),
+			"NotBeDefined" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).IsNotDefined()", 0),
+			"HaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
+				? ParseExpressionWithBecause(
+					$"Expect.That({actual}).IsNotNull()", 0)
+				: ParseExpressionWithBecause(
+					$"Expect.That({actual}).HasValue({expected})", 1),
+			"NotHaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
+				? ParseExpressionWithBecause(
+					$"Expect.That({actual}).IsNull()", 0)
+				: ParseExpressionWithBecause(
+					$"Expect.That({actual}).DoesNotHaveValue({expected})", 1),
+			"HaveFlag" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).HasFlag({expected})", 1),
+			"NotHaveFlag" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).DoesNotHaveFlag({expected})", 1),
 			"BeSameAs" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsSameAs({expected})", 1),
 			"NotBeSameAs" => ParseExpressionWithBecause(
@@ -331,8 +349,6 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				return [];
 			}
 		}
-
-		public List<MemberAccessExpressionSyntax> Methods { get; } = new();
 
 		public override void Visit(SyntaxNode node)
 		{
