@@ -31,27 +31,23 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return document;
 		}
 
-		ExpressionSyntax? newExpression = null;
-		if (expressionSyntax is InvocationExpressionSyntax or ConditionalAccessExpressionSyntax)
+		ExpressionSyntaxWalker walker = new(expressionSyntax is ConditionalAccessExpressionSyntax);
+		walker.Visit(expressionSyntax);
+		ExpressionSyntax? actual = walker.Subject;
+		if (actual is null || walker.MainMethod is null)
 		{
-			ExpressionSyntaxWalker walker = new(expressionSyntax is ConditionalAccessExpressionSyntax);
-			walker.Visit(expressionSyntax);
-			ExpressionSyntax? actual = walker.Subject;
-			if (actual is null || walker.MainMethod is null)
-			{
-				return document;
-			}
-
-			MemberAccessExpressionSyntax? memberAccessExpressionSyntax = walker.MainMethod;
-			ArgumentSyntax? expected = walker.MainMethodArguments.ElementAtOrDefault(0);
-
-			string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
-
-			string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
-
-			newExpression = await GetNewExpression(context,
-				methodName, actual, expected, genericArgs, walker.MainMethodArguments);
+			return document;
 		}
+
+		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = walker.MainMethod;
+		ArgumentSyntax? expected = walker.MainMethodArguments.ElementAtOrDefault(0);
+
+		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
+
+		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
+
+		ExpressionSyntax? newExpression = await GetNewExpression(context,
+			methodName, actual, expected, genericArgs, walker.MainMethodArguments);
 
 		if (newExpression != null)
 		{
@@ -302,9 +298,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	{
 		private bool _isConditional = isConditional;
 		private bool _isShould;
-		private SeparatedSyntaxList<ArgumentSyntax>? _mainMethodArguments;
 		private string _subjectString = "";
-		public string SubjectPrefix { get; }
 		public ExpressionSyntax? Subject { get; private set; }
 		public MemberAccessExpressionSyntax? MainMethod { get; private set; }
 
@@ -312,17 +306,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			get
 			{
-				if (_mainMethodArguments is not null)
+				if (MainMethod?.Parent is InvocationExpressionSyntax invocationExpressionSyntax)
 				{
-					return _mainMethodArguments.Value;
+					return invocationExpressionSyntax.ArgumentList.Arguments;
 				}
 
-				if (MainMethod?.Parent is not InvocationExpressionSyntax invocationExpressionSyntax)
-				{
-					return [];
-				}
-
-				return invocationExpressionSyntax.ArgumentList.Arguments;
+				return [];
 			}
 		}
 
@@ -336,9 +325,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				{
 					_subjectString = identifierNameSyntax.ToString();
 				}
+
 				if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
 				{
-					_subjectString += "?" +memberBindingExpressionSyntax;
+					_subjectString += "?" + memberBindingExpressionSyntax;
 				}
 
 				if (node is ArgumentListSyntax invocationExpressionSyntax)
@@ -372,7 +362,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				}
 			}
 
-			if (node is not ArgumentSyntax argumentSyntax)
+			if (node is not ArgumentSyntax)
 			{
 				base.Visit(node);
 			}
