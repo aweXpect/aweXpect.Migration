@@ -39,7 +39,7 @@ public abstract class AssertionCodeFixProvider(DiagnosticDescriptor rule) : Code
 					CodeAction.Create(
 						rule.Title.ToString(),
 						c => ConvertAssertionAsync(context, expressionSyntax, c),
-						rule.Id),
+						rule.Title.ToString()),
 					diagnostic);
 			}
 		}
