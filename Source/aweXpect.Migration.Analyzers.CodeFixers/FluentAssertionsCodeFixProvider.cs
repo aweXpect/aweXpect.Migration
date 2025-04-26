@@ -357,7 +357,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return string.Empty;
 	}
 
-	public class MethodDefinition
+	internal class MethodDefinition
 	{
 		public MethodDefinition(MemberAccessExpressionSyntax method)
 		{
