@@ -84,8 +84,6 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsNotEqualTo({expected})", 1),
 			"BeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected),
 			"NotBeEquivalentTo" => await BeEquivalentTo(context, argumentListArguments, actual, expected, true),
-			"AllBeEquivalentTo" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).All().AreEquivalentTo({expected})", 1),
 			"Contain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).Contains({expected})", 1),
 			"NotContain" => ParseExpressionWithBecause(
@@ -165,16 +163,6 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
-			"AllBeOfType" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().AreExactly<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().AreExactly({expected})", 1),
-			"AllBeAssignableTo" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().Are<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().Are({expected})", 1),
 			"BeAssignableTo" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).Is<{genericArgs}>()", 0)
