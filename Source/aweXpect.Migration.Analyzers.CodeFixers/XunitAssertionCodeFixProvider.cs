@@ -1,8 +1,8 @@
 ﻿using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using aweXpect.Migration.Analyzers.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
@@ -136,108 +136,64 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 	}
 #pragma warning restore S3776
 
-	private static async Task<ExpressionSyntax> IsNotEqualTo(CodeFixContext context,
+	private static Task<ExpressionSyntax> IsNotEqualTo(
+		CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ArgumentSyntax? actual, ArgumentSyntax? expected)
+		ArgumentSyntax? actual,
+		ArgumentSyntax? expected)
 	{
-		if (argumentListArguments.Count >= 3 && argumentListArguments[2].Expression is LiteralExpressionSyntax
-			                                     literalExpressionSyntax
-		                                     && decimal.TryParse(literalExpressionSyntax.Token.ValueText, out _))
+		if (argumentListArguments.Count >= 3
+		    && argumentListArguments[2].Expression is LiteralExpressionSyntax literalExpressionSyntax
+		    && decimal.TryParse(literalExpressionSyntax.Token.ValueText, NumberStyles.Any,
+			    CultureInfo.InvariantCulture, out _))
 		{
-			return SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).IsNotEqualTo({expected}).Within({literalExpressionSyntax})");
+			return Task.FromResult(SyntaxFactory.ParseExpression(
+				$"Expect.That({actual}).IsNotEqualTo({expected}).Within({literalExpressionSyntax})"));
 		}
 
-		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
-
-		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual!.Expression).Symbol;
-		ISymbol? expectedSymbol = semanticModel.GetSymbolInfo(expected!.Expression).Symbol;
-
-		if (actualSymbol is not null && expectedSymbol is not null
-		                             && GetType(actualSymbol) is { } actualSymbolType
-		                             && GetType(expectedSymbol) is { } expectedSymbolType
-		                             && IsEnumerable(actualSymbolType)
-		                             && IsEnumerable(expectedSymbolType))
-		{
-			return SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEquivalentTo({expected})");
-		}
-
-		return SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEqualTo({expected})");
+		return Task.FromResult(SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEqualTo({expected})"));
 	}
 
-	private static async Task<ExpressionSyntax> IsEqualTo(CodeFixContext context,
+	private static async Task<ExpressionSyntax> IsEqualTo(
+		CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ArgumentSyntax? actual, ArgumentSyntax? expected)
+		ArgumentSyntax? actual,
+		ArgumentSyntax? expected)
 	{
-		if (argumentListArguments.Count >= 3 && argumentListArguments[2].Expression is LiteralExpressionSyntax
-			                                     literalExpressionSyntax
-		                                     && decimal.TryParse(literalExpressionSyntax.Token.ValueText, out _))
+		if (argumentListArguments.Count >= 3)
 		{
-			return SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).IsEqualTo({expected}).Within({literalExpressionSyntax})");
-		}
+			ExpressionSyntax? thirdArgument = argumentListArguments[2].Expression;
+			if (thirdArgument is LiteralExpressionSyntax literalExpressionSyntax &&
+			    decimal.TryParse(literalExpressionSyntax.Token.ValueText, NumberStyles.Any,
+				    CultureInfo.InvariantCulture, out _))
+			{
+				return SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsEqualTo({expected}).Within({literalExpressionSyntax})");
+			}
 
-		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 
-		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual!.Expression).Symbol;
-		ISymbol? expectedSymbol = semanticModel.GetSymbolInfo(expected!.Expression).Symbol;
+			if (semanticModel != null)
+			{
+				ISymbol? symbol = semanticModel.GetSymbolInfo(thirdArgument).Symbol;
 
-		if (actualSymbol is not null && expectedSymbol is not null
-		                             && GetType(actualSymbol) is { } actualSymbolType
-		                             && GetType(expectedSymbol) is { } expectedSymbolType
-		                             && IsEnumerable(actualSymbolType)
-		                             && IsEnumerable(expectedSymbolType))
-		{
-			return SyntaxFactory.ParseExpression($"Expect.That({actual}).IsEquivalentTo({expected})");
+				if (symbol is IMethodSymbol methodSymbol && methodSymbol.ReturnType.Name == "TimeSpan")
+				{
+					return SyntaxFactory.ParseExpression(
+						$"Expect.That({actual}).IsEqualTo({expected}).Within({thirdArgument})");
+				}
+			}
 		}
 
 		return SyntaxFactory.ParseExpression($"Expect.That({actual}).IsEqualTo({expected})");
 	}
 
-	private static ITypeSymbol? GetType(ISymbol symbol)
-	{
-		if (symbol is ITypeSymbol typeSymbol)
-		{
-			return typeSymbol;
-		}
 
-		if (symbol is IPropertySymbol propertySymbol)
-		{
-			return propertySymbol.Type;
-		}
-
-		if (symbol is IFieldSymbol fieldSymbol)
-		{
-			return fieldSymbol.Type;
-		}
-
-		if (symbol is ILocalSymbol localSymbol)
-		{
-			return localSymbol.Type;
-		}
-
-		return null;
-	}
-
-	private static bool IsEnumerable(ITypeSymbol typeSymbol)
-	{
-		if (typeSymbol is IArrayTypeSymbol)
-		{
-			return true;
-		}
-
-		if (typeSymbol is INamedTypeSymbol namedTypeSymbol
-		    && namedTypeSymbol.GloballyQualifiedNonGeneric() is "global::System.Collections.IEnumerable"
-			    or "global::System.Collections.Generic.IEnumerable")
-		{
-			return true;
-		}
-
-		return typeSymbol.AllInterfaces.Any(i => i.GloballyQualified() == "global::System.Collections.IEnumerable");
-	}
-
-	private static async Task<ExpressionSyntax> Contains(CodeFixContext context,
-		MemberAccessExpressionSyntax memberAccessExpressionSyntax, ArgumentSyntax? actual, ArgumentSyntax? expected)
+	private static async Task<ExpressionSyntax> Contains(
+		CodeFixContext context,
+		MemberAccessExpressionSyntax memberAccessExpressionSyntax,
+		ArgumentSyntax? actual,
+		ArgumentSyntax? expected)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 
