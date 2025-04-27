@@ -27,30 +27,28 @@ public class FluentAssertionsAnalyzer : DiagnosticAnalyzer
 
 	private static void AnalyzeOperation(OperationAnalysisContext context)
 	{
-		if (context.Operation is not IInvocationOperation invocationOperation)
+		if (context.Operation is IInvocationOperation invocationOperation)
 		{
-			return;
-		}
+			IMethodSymbol? methodSymbol = invocationOperation.TargetMethod;
 
-		IMethodSymbol? methodSymbol = invocationOperation.TargetMethod;
+			string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
 
-		string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
-
-		if (fullyQualifiedNonGenericMethodName.StartsWith("global::FluentAssertions") &&
-		    fullyQualifiedNonGenericMethodName.EndsWith("Should"))
-		{
-			SyntaxNode syntax = context.Operation.Syntax;
-			while (syntax.Parent is ExpressionOrPatternSyntax && syntax.Parent is not AwaitExpressionSyntax)
+			if (fullyQualifiedNonGenericMethodName.StartsWith("global::FluentAssertions") &&
+			    fullyQualifiedNonGenericMethodName.EndsWith("Should"))
 			{
-				syntax = syntax.Parent;
-			}
+				SyntaxNode syntax = invocationOperation.Syntax;
+				while (syntax.Parent is ExpressionOrPatternSyntax && syntax.Parent is not AwaitExpressionSyntax)
+				{
+					syntax = syntax.Parent;
+				}
 
-			// Do not report nested `.Should()` e.g. in `.Should().AllSatisfy(x => x.Should().BeGreaterThan(0));`
-			if (syntax.Parent is not ArgumentSyntax)
-			{
-				context.ReportDiagnostic(
-					Diagnostic.Create(Rules.FluentAssertionsRule, syntax.GetLocation())
-				);
+				// Do not report nested `.Should()` e.g. in `.Should().AllSatisfy(x => x.Should().BeGreaterThan(0));`
+				if (syntax.Parent is not ArgumentSyntax)
+				{
+					context.ReportDiagnostic(
+						Diagnostic.Create(Rules.FluentAssertionsRule, syntax.GetLocation())
+					);
+				}
 			}
 		}
 	}

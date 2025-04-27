@@ -30,9 +30,7 @@ public abstract class AssertionCodeFixProvider(DiagnosticDescriptor rule) : Code
 			SyntaxNode? root =
 				await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-			SyntaxNode? diagnosticNode = root?.FindNode(diagnosticSpan);
-
-			if (diagnosticNode is ExpressionSyntax expressionSyntax
+			if (root?.FindNode(diagnosticSpan) is ExpressionSyntax expressionSyntax
 			    and (InvocationExpressionSyntax or ConditionalAccessExpressionSyntax or LambdaExpressionSyntax))
 			{
 				context.RegisterCodeFix(
