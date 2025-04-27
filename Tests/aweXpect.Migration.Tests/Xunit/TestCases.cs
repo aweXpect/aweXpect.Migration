@@ -56,9 +56,15 @@ public static class TestCases
 	public static TheoryData<string, string, string, bool> Collections()
 	{
 		TheoryData<string, string, string, bool> theoryData = new();
-		theoryData.AddTestCase("",
-			"Assert.Distinct([1, 2,])",
-			"Expect.That([1, 2,]).AreAllUnique()");
+		theoryData.AddTestCase("int[] subject = [1, 2,];",
+			"Assert.Distinct(subject)",
+			"Expect.That(subject).AreAllUnique()");
+		theoryData.AddTestCase("int[] subject = [1, 2,];",
+			"Assert.Contains(1, subject)",
+			"Expect.That(subject).Contains(1)");
+		theoryData.AddTestCase("int[] subject = [1, 2,];",
+			"Assert.Contains(subject, x => x == 1)",
+			"Expect.That(subject).Contains(x => x == 1)");
 		return theoryData;
 	}
 
@@ -74,9 +80,9 @@ public static class TestCases
 		theoryData.AddTestCase("",
 			"Assert.Equal(1.0, 1.1, 0.1)",
 			"Expect.That(1.1).IsEqualTo(1.0).Within(0.1)");
-		theoryData.AddTestCase("",
-			"Assert.Equal(DateTime.Now, DateTime.Today, TimeSpan.FromSeconds(1))",
-			"Expect.That(DateTime.Today).IsEqualTo(DateTime.Now).Within(TimeSpan.FromSeconds(1))");
+		theoryData.AddTestCase("TimeSpan tolerance = TimeSpan.FromSeconds(1);",
+			"Assert.Equal(DateTime.Now, DateTime.Today, tolerance)",
+			"Expect.That(DateTime.Today).IsEqualTo(DateTime.Now).Within(tolerance)");
 		theoryData.AddTestCase("",
 			"Assert.NotEqual(1, 2)",
 			"Expect.That(2).IsNotEqualTo(1)");
