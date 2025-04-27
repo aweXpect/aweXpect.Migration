@@ -26,20 +26,18 @@ public class XunitAssertionAnalyzer : DiagnosticAnalyzer
 
 	private static void AnalyzeOperation(OperationAnalysisContext context)
 	{
-		if (context.Operation is not IInvocationOperation invocationOperation)
+		if (context.Operation is IInvocationOperation invocationOperation)
 		{
-			return;
-		}
+			IMethodSymbol? methodSymbol = invocationOperation.TargetMethod;
 
-		IMethodSymbol? methodSymbol = invocationOperation.TargetMethod;
+			string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
 
-		string? fullyQualifiedNonGenericMethodName = methodSymbol.GloballyQualifiedNonGeneric();
-
-		if (fullyQualifiedNonGenericMethodName.StartsWith("global::Xunit.Assert."))
-		{
-			context.ReportDiagnostic(
-				Diagnostic.Create(Rules.XunitAssertionRule, context.Operation.Syntax.GetLocation())
-			);
+			if (fullyQualifiedNonGenericMethodName.StartsWith("global::Xunit.Assert."))
+			{
+				context.ReportDiagnostic(
+					Diagnostic.Create(Rules.XunitAssertionRule, context.Operation.Syntax.GetLocation())
+				);
+			}
 		}
 	}
 }
