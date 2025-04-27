@@ -20,24 +20,6 @@ public static class TestCases
 		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
 			"subject.Should().NotBeSameAs(unexpected, {0})",
 			"Expect.That(subject).IsNotSameAs(unexpected)");
-		theoryData.AddWithBecause("object subject = new object();object expected = new object();",
-			"subject.Should().BeEquivalentTo(expected, {0})",
-			"Expect.That(subject).IsEquivalentTo(expected)");
-		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
-			"subject.Should().BeEquivalentTo(expected, {0})",
-			"Expect.That(subject).IsEqualTo(expected)");
-		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
-			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
-			"Expect.That(subject).IsEqualTo(expected)");
-		theoryData.AddWithBecause("int[] subject = [];int[] expected = [];",
-			"subject.Should().BeEquivalentTo(expected, o => o.WithoutStrictOrdering(), {0})",
-			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
-		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
-			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
-			"Expect.That(subject).IsNotEquivalentTo(unexpected)");
-		theoryData.AddWithBecause("int[] subject = [];int[] unexpected = [];",
-			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
-			"Expect.That(subject).IsNotEqualTo(unexpected)");
 		theoryData.AddWithBecause("object subject = new Exception();",
 			"subject.Should().BeAssignableTo<ArgumentException>({0})",
 			"Expect.That(subject).Is<ArgumentException>()");
@@ -131,6 +113,36 @@ public static class TestCases
 		theoryData.AddWithBecause("DayOfWeek subject = DayOfWeek.Monday;",
 			"subject.Should().NotHaveFlag(DayOfWeek.Tuesday, {0})",
 			"Expect.That(subject).DoesNotHaveFlag(DayOfWeek.Tuesday)");
+		return theoryData;
+	}
+
+	/// <summary>
+	///     <see href="https://fluentassertions.com/exceptions/" />
+	/// </summary>
+	public static TheoryData<string, string, string, bool> Equivalency()
+	{
+		TheoryData<string, string, string, bool> theoryData = new();
+		theoryData.AddWithBecause("object subject = new object();object expected = new object();",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEquivalentTo(expected)");
+		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected)");
+		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
+			"Expect.That(subject).IsEqualTo(expected)");
+		theoryData.AddWithBecause("AggregateException subject = new(); Exception[] expected = [];",
+			"subject.InnerExceptions.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
+			"Expect.That(subject.InnerExceptions).IsEqualTo(expected)");
+		theoryData.AddWithBecause("int[] subject = [];int[] expected = [];",
+			"subject.Should().BeEquivalentTo(expected, o => o.WithoutStrictOrdering(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
+		theoryData.AddWithBecause("object subject = new object();object unexpected = new object();",
+			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
+			"Expect.That(subject).IsNotEquivalentTo(unexpected)");
+		theoryData.AddWithBecause("int[] subject = [];int[] unexpected = [];",
+			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
+			"Expect.That(subject).IsNotEqualTo(unexpected)");
 		return theoryData;
 	}
 

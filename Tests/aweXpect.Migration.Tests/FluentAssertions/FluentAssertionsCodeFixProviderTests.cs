@@ -47,6 +47,14 @@ public class FluentAssertionsCodeFixProviderTests
 		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
 
 	[Theory]
+	[MemberData(nameof(TestCases.Equivalency), MemberType = typeof(TestCases))]
+	public async Task ShouldApplyCodeFixForEquivalencyTestCases(
+		string fluentAssertions,
+		string aweXpect,
+		string arrange,
+		bool isAsync) => await VerifyTestCase(fluentAssertions, aweXpect, arrange, isAsync);
+
+	[Theory]
 	[MemberData(nameof(TestCases.Exceptions), MemberType = typeof(TestCases))]
 	public async Task ShouldApplyCodeFixForExceptionsTestCases(
 		string fluentAssertions,

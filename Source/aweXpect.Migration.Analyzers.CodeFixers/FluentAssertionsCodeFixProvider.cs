@@ -357,19 +357,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return string.Empty;
 	}
 
-	internal class MethodDefinition
+	private class MethodDefinition
 	{
 		public MethodDefinition(MemberAccessExpressionSyntax method)
 		{
 			Method = method;
-			if (method?.Parent is InvocationExpressionSyntax invocationExpressionSyntax)
-			{
-				Arguments = invocationExpressionSyntax.ArgumentList.Arguments;
-			}
-			else
-			{
-				Arguments = [];
-			}
+			InvocationExpressionSyntax? invocationExpressionSyntax = method.Parent as InvocationExpressionSyntax;
+			Arguments = invocationExpressionSyntax?.ArgumentList.Arguments ?? [];
 		}
 
 		public MemberAccessExpressionSyntax Method { get; }
@@ -424,7 +418,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 						_isConditional = false;
 					}
 				}
-				else
+				else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
 				{
 					Methods.Push(new MethodDefinition(memberAccessExpressionSyntax));
 				}
