@@ -1,5 +1,5 @@
-﻿using System.Composition;
-using System.Globalization;
+﻿using System;
+using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,8 +66,9 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 
 		return method switch
 		{
-			"Equal" => await IsEqualTo(context, argumentListArguments, actual, expected),
-			"NotEqual" => await IsNotEqualTo(context, argumentListArguments, actual, expected),
+			"Equal" => await IsEqualTo(context, memberAccessExpressionSyntax, argumentListArguments, actual, expected),
+			"NotEqual" => await IsNotEqualTo(context, memberAccessExpressionSyntax, argumentListArguments, actual,
+				expected),
 			"Contains" => await Contains(context, memberAccessExpressionSyntax, actual, expected),
 			"DoesNotContain" => SyntaxFactory.ParseExpression(
 				$"Expect.That({actual}).DoesNotContain({expected})"),
@@ -136,26 +137,8 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 	}
 #pragma warning restore S3776
 
-	private static Task<ExpressionSyntax> IsNotEqualTo(
-		CodeFixContext context,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ArgumentSyntax? actual,
-		ArgumentSyntax? expected)
-	{
-		if (argumentListArguments.Count >= 3
-		    && argumentListArguments[2].Expression is LiteralExpressionSyntax literalExpressionSyntax
-		    && decimal.TryParse(literalExpressionSyntax.Token.ValueText, NumberStyles.Any,
-			    CultureInfo.InvariantCulture, out _))
-		{
-			return Task.FromResult(SyntaxFactory.ParseExpression(
-				$"Expect.That({actual}).IsNotEqualTo({expected}).Within({literalExpressionSyntax})"));
-		}
-
-		return Task.FromResult(SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEqualTo({expected})"));
-	}
-
-	private static async Task<ExpressionSyntax> IsEqualTo(
-		CodeFixContext context,
+	private static async Task<ExpressionSyntax> IsNotEqualTo(CodeFixContext context,
+		MemberAccessExpressionSyntax memberAccessExpressionSyntax,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
 		ArgumentSyntax? actual,
 		ArgumentSyntax? expected)
@@ -163,25 +146,42 @@ public class XunitAssertionCodeFixProvider() : AssertionCodeFixProvider(Rules.Xu
 		if (argumentListArguments.Count >= 3)
 		{
 			ExpressionSyntax? thirdArgument = argumentListArguments[2].Expression;
-			if (thirdArgument is LiteralExpressionSyntax literalExpressionSyntax &&
-			    decimal.TryParse(literalExpressionSyntax.Token.ValueText, NumberStyles.Any,
-				    CultureInfo.InvariantCulture, out _))
-			{
-				return SyntaxFactory.ParseExpression(
-					$"Expect.That({actual}).IsEqualTo({expected}).Within({literalExpressionSyntax})");
-			}
-
 			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 
-			if (semanticModel != null)
-			{
-				ISymbol? symbol = semanticModel.GetSymbolInfo(thirdArgument).Symbol;
+			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
 
-				if (symbol is IMethodSymbol methodSymbol && methodSymbol.ReturnType.Name == "TimeSpan")
-				{
-					return SyntaxFactory.ParseExpression(
-						$"Expect.That({actual}).IsEqualTo({expected}).Within({thirdArgument})");
-				}
+			if (symbol is IMethodSymbol { Parameters.Length: >= 3, } methodSymbol &&
+			    (methodSymbol.Parameters[2].Type.Name.Equals("Double", StringComparison.Ordinal) ||
+			     methodSymbol.Parameters[2].Type.Name.Equals("Float", StringComparison.Ordinal)))
+			{
+				return SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsNotEqualTo({expected}).Within({thirdArgument})");
+			}
+		}
+
+		return SyntaxFactory.ParseExpression($"Expect.That({actual}).IsNotEqualTo({expected})");
+	}
+
+	private static async Task<ExpressionSyntax> IsEqualTo(CodeFixContext context,
+		MemberAccessExpressionSyntax memberAccessExpressionSyntax,
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		ArgumentSyntax? actual,
+		ArgumentSyntax? expected)
+	{
+		if (argumentListArguments.Count >= 3)
+		{
+			ExpressionSyntax? thirdArgument = argumentListArguments[2].Expression;
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+
+			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
+
+			if (symbol is IMethodSymbol { Parameters.Length: >= 3, } methodSymbol &&
+			    (methodSymbol.Parameters[2].Type.Name.Equals("Double", StringComparison.Ordinal) ||
+			     methodSymbol.Parameters[2].Type.Name.Equals("Float", StringComparison.Ordinal) ||
+			     methodSymbol.Parameters[2].Type.Name.Equals("TimeSpan", StringComparison.Ordinal)))
+			{
+				return SyntaxFactory.ParseExpression(
+					$"Expect.That({actual}).IsEqualTo({expected}).Within({thirdArgument})");
 			}
 		}
 
