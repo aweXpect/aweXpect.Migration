@@ -181,6 +181,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsSameAs({expected})", 1),
 			"NotBeSameAs" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
+			"BeOneOf" => BeOneOf(mainMethod.Arguments, actual, methods, wrapSynchronously),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
 			"BeAssignableTo" => isGeneric
@@ -251,6 +252,16 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
 			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
 			methods, wrapSynchronously, 1);
+	}
+
+	private static ExpressionSyntax? BeOneOf(
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		ExpressionSyntax actual, Stack<MethodDefinition> methods, bool wrapSynchronously)
+	{
+		string? arguments = string.Join(", ", argumentListArguments.Select(x => x.ToString()));
+		return ParseExpressionWithBecauseSupport(argumentListArguments,
+			$"Expect.That({actual}).IsOneOf({arguments})",
+			methods, wrapSynchronously);
 	}
 
 	private static ExpressionSyntax? ParseExpressionWithBecauseSupport(

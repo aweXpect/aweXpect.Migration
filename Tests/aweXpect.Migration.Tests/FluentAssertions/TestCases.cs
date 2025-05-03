@@ -209,6 +209,12 @@ public static class TestCases
 		theoryData.AddWithBecause("double subject = 1.1;double expected = 1.0;double tolerance = 0.05;",
 			"subject.Should().BeApproximately(expected, tolerance, {0})",
 			"Expect.That(subject).IsEqualTo(expected).Within(tolerance)");
+		theoryData.AddWithBecause("int subject = 1;int[] expected = [2, 3,];",
+			"subject.Should().BeOneOf(expected)",
+			"Expect.That(subject).IsOneOf(expected)");
+		theoryData.AddWithBecause("int subject = 1;",
+			"subject.Should().BeOneOf(2, 3, 4)",
+			"Expect.That(subject).IsOneOf(2, 3, 4)");
 		return theoryData;
 	}
 
@@ -242,6 +248,9 @@ public static class TestCases
 		theoryData.AddWithBecause("DateTime subject = DateTime.Now;DateTime unexpected = DateTime.Now;",
 			"subject.Should().NotBeOnOrBefore(unexpected, {0})",
 			"Expect.That(subject).IsNotOnOrBefore(unexpected)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;DateTime[] expected = [DateTime.Now,];",
+			"subject.Should().BeOneOf(expected)",
+			"Expect.That(subject).IsOneOf(expected)");
 		return theoryData;
 	}
 
