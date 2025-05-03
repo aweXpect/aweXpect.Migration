@@ -210,7 +210,7 @@ public static class TestCases
 			"subject.Should().BeApproximately(expected, tolerance, {0})",
 			"Expect.That(subject).IsEqualTo(expected).Within(tolerance)");
 		theoryData.AddWithBecause("int subject = 1;int[] expected = [2, 3,];",
-			"subject.Should().BeOneOf(expected, {0})",
+			"subject.Should().BeOneOf(expected)",
 			"Expect.That(subject).IsOneOf(expected)");
 		theoryData.AddWithBecause("int subject = 1;",
 			"subject.Should().BeOneOf(2, 3, 4)",
@@ -249,7 +249,7 @@ public static class TestCases
 			"subject.Should().NotBeOnOrBefore(unexpected, {0})",
 			"Expect.That(subject).IsNotOnOrBefore(unexpected)");
 		theoryData.AddWithBecause("DateTime subject = DateTime.Now;DateTime[] expected = [DateTime.Now,];",
-			"subject.Should().BeOneOf(expected, {0})",
+			"subject.Should().BeOneOf(expected)",
 			"Expect.That(subject).IsOneOf(expected)");
 		return theoryData;
 	}
