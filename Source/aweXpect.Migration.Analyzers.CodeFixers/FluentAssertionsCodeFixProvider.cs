@@ -181,7 +181,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsSameAs({expected})", 1),
 			"NotBeSameAs" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
-			"BeOneOf" => BeOneOf(mainMethod.Arguments, actual, methods, wrapSynchronously),
+			"BeOneOf" => await BeOneOf(context, mainMethod, actual, expected,
+				methods, wrapSynchronously),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
 			"BeAssignableTo" => isGeneric
@@ -254,12 +255,26 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods, wrapSynchronously, 1);
 	}
 
-	private static ExpressionSyntax? BeOneOf(
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, Stack<MethodDefinition> methods, bool wrapSynchronously)
+	private static async Task<ExpressionSyntax?> BeOneOf(CodeFixContext context,
+		MethodDefinition mainMethod,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously)
 	{
-		string? arguments = string.Join(", ", argumentListArguments.Select(x => x.ToString()));
-		return ParseExpressionWithBecauseSupport(argumentListArguments,
+		if (mainMethod.Arguments.Count > 1)
+		{
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+			ISymbol? symbol = semanticModel.GetSymbolInfo(mainMethod.Method).Symbol;
+
+			if (symbol is IMethodSymbol { Parameters.Length: > 1, } methodSymbol &&
+			    methodSymbol.Parameters[0].Type.Name != methodSymbol.Parameters[1].Type.Name)
+			{
+				return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
+					$"Expect.That({actual}).IsOneOf({mainMethod.Arguments[0]})",
+					methods, wrapSynchronously, 1);
+			}
+		}
+
+		string? arguments = string.Join(", ", mainMethod.Arguments.Select(x => x.ToString()));
+		return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
 			$"Expect.That({actual}).IsOneOf({arguments})",
 			methods, wrapSynchronously);
 	}
