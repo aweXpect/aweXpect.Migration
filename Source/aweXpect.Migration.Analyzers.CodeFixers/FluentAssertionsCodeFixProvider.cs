@@ -185,6 +185,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				methods, wrapSynchronously),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
+			"OnlyContain" => ParseExpressionWithBecause(
+				$"Expect.That({actual}).All().Satisfy({expected})", 1),
 			"BeAssignableTo" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).Is<{genericArgs}>()", 0)

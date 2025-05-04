@@ -80,6 +80,9 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().HaveCount(1, {0})",
 			"Expect.That(subject).HasCount(1)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().OnlyContain(x => x > 0, {0})",
+			"Expect.That(subject).All().Satisfy(x => x > 0)");
 		return theoryData;
 	}
 
