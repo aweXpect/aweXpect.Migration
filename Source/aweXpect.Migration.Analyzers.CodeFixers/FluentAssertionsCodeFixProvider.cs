@@ -241,7 +241,23 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			{
 				if (secondArgument.Contains(".WithoutStrictOrdering()"))
 				{
-					expressionSuffix = ".InAnyOrder()";
+					expressionSuffix += ".InAnyOrder()";
+				}
+				if (secondArgument.Contains(".IgnoringCase()"))
+				{
+					expressionSuffix += ".IgnoringCase()";
+				}
+				if (secondArgument.Contains(".IgnoringLeadingWhitespace()"))
+				{
+					expressionSuffix += ".IgnoringLeadingWhiteSpace()";
+				}
+				if (secondArgument.Contains(".IgnoringTrailingWhitespace()"))
+				{
+					expressionSuffix += ".IgnoringTrailingWhiteSpace()";
+				}
+				if (secondArgument.Contains(".IgnoringNewlineStyle()"))
+				{
+					expressionSuffix += ".IgnoringNewlineStyle()";
 				}
 
 				becauseIndex++;

@@ -37,7 +37,7 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
 			ReferenceAssemblies = ReferenceAssemblies.Net.Net80.AddPackages(
 			[
 				new PackageIdentity("xunit.v3", "1.1.0"),
-				new PackageIdentity("FluentAssertions", "7.2.0"),
+				new PackageIdentity("FluentAssertions", "8.2.0"),
 			]),
 			TestState =
 			{
@@ -67,6 +67,41 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
 	/// <inheritdoc
 	///     cref="CodeFixVerifier{TAnalyzer, TCodeFix, TTest, TVerifier}.VerifyCodeFixAsync(string, DiagnosticResult[], string)" />
 	public static async Task VerifyCodeFixAsync(
+		[StringSyntax("c#-test")] string source,
+		IEnumerable<DiagnosticResult> expected,
+		[StringSyntax("c#-test")] string fixedSource
+	)
+	{
+		Test test = new()
+		{
+			TestCode = source,
+			FixedCode = fixedSource,
+			ReferenceAssemblies = ReferenceAssemblies.Net.Net80.AddPackages(
+			[
+				new PackageIdentity("xunit.v3", "1.1.0"),
+				new PackageIdentity("FluentAssertions", "8.2.0"),
+			]),
+			TestState =
+			{
+				AdditionalReferences =
+				{
+					typeof(Expect).Assembly.Location,
+					typeof(ThatBool).Assembly.Location,
+				},
+			},
+		};
+
+		test.ExpectedDiagnostics.AddRange(expected);
+		await test.RunAsync(CancellationToken.None);
+	}
+
+	public static async Task VerifyLegacyCodeFixAsync([StringSyntax("c#-test")] string source,
+		[StringSyntax("c#-test")] string fixedSource)
+		=> await VerifyLegacyCodeFixAsync(source, DiagnosticResult.EmptyDiagnosticResults, fixedSource);
+	
+	/// <inheritdoc
+	///     cref="CodeFixVerifier{TAnalyzer, TCodeFix, TTest, TVerifier}.VerifyCodeFixAsync(string, DiagnosticResult[], string)" />
+	public static async Task VerifyLegacyCodeFixAsync(
 		[StringSyntax("c#-test")] string source,
 		IEnumerable<DiagnosticResult> expected,
 		[StringSyntax("c#-test")] string fixedSource
