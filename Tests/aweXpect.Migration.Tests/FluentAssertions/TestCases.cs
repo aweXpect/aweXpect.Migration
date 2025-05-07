@@ -195,17 +195,11 @@ public static class TestCases
 			"subject.Should().BeGreaterThan(expected, {0})",
 			"Expect.That(subject).IsGreaterThan(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
-			"subject.Should().BeGreaterOrEqualTo(expected, {0})",
-			"Expect.That(subject).IsGreaterThanOrEqualTo(expected)");
-		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeGreaterThanOrEqualTo(expected, {0})",
 			"Expect.That(subject).IsGreaterThanOrEqualTo(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeLessThan(expected, {0})",
 			"Expect.That(subject).IsLessThan(expected)");
-		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
-			"subject.Should().BeLessOrEqualTo(expected, {0})",
-			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
 		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
 			"subject.Should().BeLessThanOrEqualTo(expected, {0})",
 			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
@@ -218,6 +212,21 @@ public static class TestCases
 		theoryData.AddWithBecause("int subject = 1;",
 			"subject.Should().BeOneOf(2, 3, 4)",
 			"Expect.That(subject).IsOneOf(2, 3, 4)");
+		return theoryData;
+	}
+
+	/// <summary>
+	///     Legacy expectations on fluentassertions 7.2.x
+	/// </summary>
+	public static TheoryData<string, string, string, bool> Legacy()
+	{
+		TheoryData<string, string, string, bool> theoryData = new();
+		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
+			"subject.Should().BeLessOrEqualTo(expected, {0})",
+			"Expect.That(subject).IsLessThanOrEqualTo(expected)");
+		theoryData.AddWithBecause("int subject = 1;int expected = 2;",
+			"subject.Should().BeGreaterOrEqualTo(expected, {0})",
+			"Expect.That(subject).IsGreaterThanOrEqualTo(expected)");
 		return theoryData;
 	}
 
@@ -311,6 +320,18 @@ public static class TestCases
 		theoryData.AddWithBecause("string subject = \"foo\";string unexpected = \"bar\";",
 			"subject.Should().NotEndWith(unexpected, {0})",
 			"Expect.That(subject).DoesNotEndWith(unexpected)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringCase(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringLeadingWhitespace(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringLeadingWhiteSpace()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringTrailingWhitespace(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringTrailingWhiteSpace()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringNewlineStyle(), {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringNewlineStyle()");
 		return theoryData;
 	}
 
