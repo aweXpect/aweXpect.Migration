@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Composition;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,8 +86,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				methods, wrapSynchronously),
 			"NotBeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
 				methods, wrapSynchronously, true),
-			"Contain" => await Contain(context, mainMethod, actual, expected,
-				methods, wrapSynchronously),
+			"Contain" => Contain(mainMethod, actual, expected, methods, wrapSynchronously),
 			"NotContain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).DoesNotContain({expected})", 1),
 			"StartWith" => ParseExpressionWithBecause(
@@ -182,8 +180,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).IsSameAs({expected})", 1),
 			"NotBeSameAs" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
-			"BeOneOf" => await BeOneOf(context, mainMethod, actual, expected,
-				methods, wrapSynchronously),
+			"BeOneOf" => await BeOneOf(context, mainMethod, actual, methods, wrapSynchronously),
 			"HaveCount" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).HasCount({expected})", 1),
 			"OnlyContain" => ParseExpressionWithBecause(
@@ -292,7 +289,6 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		ArgumentSyntax? expected,
 		Stack<MethodDefinition> methods,
 		bool wrapSynchronously)
 	{
@@ -316,8 +312,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods, wrapSynchronously);
 	}
 
-	private static async Task<ExpressionSyntax?> Contain(
-		CodeFixContext context,
+	private static ExpressionSyntax? Contain(
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
 		ArgumentSyntax? expected,
@@ -367,7 +362,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				expressionSuffix = $".MoreThan({moreThanTimes})";
 			}
 
-			static bool TryExtract(string input, string prefix, [NotNullWhen(true)] out string? times)
+			static bool TryExtract(string input, string prefix, out string? times)
 			{
 				if (input.StartsWith(prefix) && input.EndsWith(")"))
 				{
