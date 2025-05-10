@@ -83,6 +83,18 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().OnlyContain(x => x > 0, {0})",
 			"Expect.That(subject).All().Satisfy(x => x > 0)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().AllBeAssignableTo<ArgumentException>({0})",
+			"Expect.That(subject).All().Are<ArgumentException>()");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().AllBeAssignableTo(typeof(ArgumentException), {0})",
+			"Expect.That(subject).All().Are(typeof(ArgumentException))");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().AllBeOfType<ArgumentException>({0})",
+			"Expect.That(subject).All().AreExactly<ArgumentException>()");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().AllBeOfType(typeof(ArgumentException), {0})",
+			"Expect.That(subject).All().AreExactly(typeof(ArgumentException))");
 		return theoryData;
 	}
 
