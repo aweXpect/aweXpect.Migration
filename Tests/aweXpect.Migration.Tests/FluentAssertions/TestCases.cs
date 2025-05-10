@@ -83,6 +83,12 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().OnlyContain(x => x > 0, {0})",
 			"Expect.That(subject).All().Satisfy(x => x > 0)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().ContainSingle(x => x > 0, {0})",
+			"Expect.That(subject).HasSingle().Matching(x => x > 0)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().ContainSingle({0})",
+			"Expect.That(subject).HasSingle()");
 		theoryData.AddWithBecause("object[] subject = [];",
 			"subject.Should().AllBeAssignableTo<ArgumentException>({0})",
 			"Expect.That(subject).All().Are<ArgumentException>()");

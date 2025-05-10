@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -67,6 +68,18 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		MethodDefinition? mainMethod = methods.Pop();
 		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = mainMethod.Method;
 		ArgumentSyntax? expected = mainMethod.Arguments.ElementAtOrDefault(0);
+		string? expectedType = null;
+
+		if (expected is not null)
+		{
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
+
+			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol)
+			{
+				expectedType = methodSymbol.Parameters[0].Type.Name;
+			}
+		}
 
 		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
 		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
@@ -185,6 +198,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$"Expect.That({actual}).HasCount({expected})", 1),
 			"OnlyContain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).All().Satisfy({expected})", 1),
+			"ContainSingle" =>
+				expectedType == null || expectedType.Equals("string", StringComparison.OrdinalIgnoreCase)
+					? ParseExpressionWithBecause($"Expect.That({actual}).HasSingle()", 0)
+					: ParseExpressionWithBecause($"Expect.That({actual}).HasSingle().Matching({expected})", 1),
 			"AllBeAssignableTo" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).All().Are<{genericArgs}>()", 0)
