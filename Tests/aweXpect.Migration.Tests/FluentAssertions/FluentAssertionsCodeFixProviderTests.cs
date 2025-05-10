@@ -309,6 +309,7 @@ public class FluentAssertionsCodeFixProviderTests
 			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
+			  using aweXpect.Core;
 			  using FluentAssertions;
 			  using Xunit;
 
@@ -328,6 +329,7 @@ public class FluentAssertionsCodeFixProviderTests
 			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
+			  using aweXpect.Core;
 			  using FluentAssertions;
 			  using Xunit;
 
@@ -355,6 +357,7 @@ public class FluentAssertionsCodeFixProviderTests
 			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
+			  using aweXpect.Core;
 			  using FluentAssertions;
 			  using Xunit;
 
@@ -374,6 +377,7 @@ public class FluentAssertionsCodeFixProviderTests
 			  using System.Collections.Generic;
 			  using System.Threading.Tasks;
 			  using aweXpect;
+			  using aweXpect.Core;
 			  using FluentAssertions;
 			  using Xunit;
 

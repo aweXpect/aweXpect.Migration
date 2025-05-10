@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Composition;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -86,8 +87,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				methods, wrapSynchronously),
 			"NotBeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
 				methods, wrapSynchronously, true),
-			"Contain" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).Contains({expected})", 1),
+			"Contain" => await Contain(context, mainMethod, actual, expected,
+				methods, wrapSynchronously),
 			"NotContain" => ParseExpressionWithBecause(
 				$"Expect.That({actual}).DoesNotContain({expected})", 1),
 			"StartWith" => ParseExpressionWithBecause(
@@ -253,18 +254,22 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				{
 					expressionSuffix += ".InAnyOrder()";
 				}
+
 				if (secondArgument.Contains(".IgnoringCase()"))
 				{
 					expressionSuffix += ".IgnoringCase()";
 				}
+
 				if (secondArgument.Contains(".IgnoringLeadingWhitespace()"))
 				{
 					expressionSuffix += ".IgnoringLeadingWhiteSpace()";
 				}
+
 				if (secondArgument.Contains(".IgnoringTrailingWhitespace()"))
 				{
 					expressionSuffix += ".IgnoringTrailingWhiteSpace()";
 				}
+
 				if (secondArgument.Contains(".IgnoringNewlineStyle()"))
 				{
 					expressionSuffix += ".IgnoringNewlineStyle()";
@@ -283,9 +288,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods, wrapSynchronously, 1);
 	}
 
-	private static async Task<ExpressionSyntax?> BeOneOf(CodeFixContext context,
+	private static async Task<ExpressionSyntax?> BeOneOf(
+		CodeFixContext context,
 		MethodDefinition mainMethod,
-		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously)
+		ExpressionSyntax actual,
+		ArgumentSyntax? expected,
+		Stack<MethodDefinition> methods,
+		bool wrapSynchronously)
 	{
 		if (mainMethod.Arguments.Count > 1)
 		{
@@ -305,6 +314,75 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
 			$"Expect.That({actual}).IsOneOf({arguments})",
 			methods, wrapSynchronously);
+	}
+
+	private static async Task<ExpressionSyntax?> Contain(
+		CodeFixContext context,
+		MethodDefinition mainMethod,
+		ExpressionSyntax actual,
+		ArgumentSyntax? expected,
+		Stack<MethodDefinition> methods,
+		bool wrapSynchronously)
+	{
+		string expressionSuffix = "";
+		if (mainMethod.Arguments.Count > 1)
+		{
+			string? occurrenceConstraint = mainMethod.Arguments[1].ToString();
+			expressionSuffix = occurrenceConstraint switch
+			{
+				"AtLeast.Once()" => ".AtLeast().Once()",
+				"AtLeast.Twice()" => ".AtLeast().Twice()",
+				"AtLeast.Thrice()" => ".AtLeast(3.Times())",
+				"AtMost.Once()" => ".AtMost().Once()",
+				"AtMost.Twice()" => ".AtMost().Twice()",
+				"AtMost.Thrice()" => ".AtMost(3.Times())",
+				"LessThan.Twice()" => ".LessThan().Twice()",
+				"LessThan.Thrice()" => ".LessThan(3.Times())",
+				"MoreThan.Once()" => ".MoreThan().Once()",
+				"MoreThan.Twice()" => ".MoreThan().Twice()",
+				"MoreThan.Thrice()" => ".MoreThan(3.Times())",
+				"Exactly.Once()" => ".Once()",
+				"Exactly.Twice()" => ".Twice()",
+				"Exactly.Thrice()" => ".Exactly(3.Times())",
+				_ => "",
+			};
+			if (TryExtract(occurrenceConstraint, "AtLeast.Times(", out string? atLeastTimes))
+			{
+				expressionSuffix = $".AtLeast({atLeastTimes})";
+			}
+			else if (TryExtract(occurrenceConstraint, "AtMost.Times(", out string? atMostTimes))
+			{
+				expressionSuffix = $".AtMost({atMostTimes})";
+			}
+			else if (TryExtract(occurrenceConstraint, "Exactly.Times(", out string? exactlyTimes))
+			{
+				expressionSuffix = $".Exactly({exactlyTimes})";
+			}
+			else if (TryExtract(occurrenceConstraint, "LessThan.Times(", out string? lessThanTimes))
+			{
+				expressionSuffix = $".LessThan({lessThanTimes})";
+			}
+			else if (TryExtract(occurrenceConstraint, "MoreThan.Times(", out string? moreThanTimes))
+			{
+				expressionSuffix = $".MoreThan({moreThanTimes})";
+			}
+
+			static bool TryExtract(string input, string prefix, [NotNullWhen(true)] out string? times)
+			{
+				if (input.StartsWith(prefix) && input.EndsWith(")"))
+				{
+					times = input.Substring(prefix.Length, input.Length - prefix.Length - 1);
+					return true;
+				}
+
+				times = null;
+				return false;
+			}
+		}
+
+		return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
+			$"Expect.That({actual}).Contains({expected}){expressionSuffix}",
+			methods, wrapSynchronously, expressionSuffix == "" ? 1 : 2);
 	}
 
 	private static ExpressionSyntax? ParseExpressionWithBecauseSupport(
