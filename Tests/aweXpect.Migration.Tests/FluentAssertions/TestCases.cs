@@ -317,6 +317,63 @@ public static class TestCases
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().Contain(expected, {0})",
 			"Expect.That(subject).Contains(expected)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtLeast.Once(), {0})",
+			"Expect.That(subject).Contains(expected).AtLeast().Once()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtLeast.Twice(), {0})",
+			"Expect.That(subject).Contains(expected).AtLeast().Twice()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtLeast.Thrice(), {0})",
+			"Expect.That(subject).Contains(expected).AtLeast(3.Times())");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtLeast.Times(4), {0})",
+			"Expect.That(subject).Contains(expected).AtLeast(4)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtMost.Once(), {0})",
+			"Expect.That(subject).Contains(expected).AtMost().Once()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtMost.Twice(), {0})",
+			"Expect.That(subject).Contains(expected).AtMost().Twice()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, AtMost.Thrice(), {0})",
+			"Expect.That(subject).Contains(expected).AtMost(3.Times())");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";int expectedCount=5;",
+			"subject.Should().Contain(expected, AtMost.Times(expectedCount), {0})",
+			"Expect.That(subject).Contains(expected).AtMost(expectedCount)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, Exactly.Once(), {0})",
+			"Expect.That(subject).Contains(expected).Once()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, Exactly.Twice(), {0})",
+			"Expect.That(subject).Contains(expected).Twice()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, Exactly.Thrice(), {0})",
+			"Expect.That(subject).Contains(expected).Exactly(3.Times())");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, Exactly.Times(4), {0})",
+			"Expect.That(subject).Contains(expected).Exactly(4)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, LessThan.Twice(), {0})",
+			"Expect.That(subject).Contains(expected).LessThan().Twice()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, LessThan.Thrice(), {0})",
+			"Expect.That(subject).Contains(expected).LessThan(3.Times())");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, LessThan.Times(4), {0})",
+			"Expect.That(subject).Contains(expected).LessThan(4)");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, MoreThan.Once(), {0})",
+			"Expect.That(subject).Contains(expected).MoreThan().Once()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, MoreThan.Twice(), {0})",
+			"Expect.That(subject).Contains(expected).MoreThan().Twice()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, MoreThan.Thrice(), {0})",
+			"Expect.That(subject).Contains(expected).MoreThan(3.Times())");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().Contain(expected, MoreThan.Times(4), {0})",
+			"Expect.That(subject).Contains(expected).MoreThan(4)");
 		theoryData.AddWithBecause("string subject = \"foo\";string unexpected = \"bar\";",
 			"subject.Should().NotContain(unexpected, {0})",
 			"Expect.That(subject).DoesNotContain(unexpected)");
