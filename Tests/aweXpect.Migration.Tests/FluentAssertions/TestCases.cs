@@ -80,6 +80,9 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().HaveCount(1, {0})",
 			"Expect.That(subject).HasCount(1)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,]; int[] expected = [2, 1,];",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().OnlyContain(x => x > 0, {0})",
 			"Expect.That(subject).All().Satisfy(x => x > 0)");
@@ -148,7 +151,7 @@ public static class TestCases
 			"Expect.That(subject).IsEquivalentTo(expected)");
 		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, {0})",
-			"Expect.That(subject).IsEqualTo(expected)");
+			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
 		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
 			"Expect.That(subject).IsEqualTo(expected)");
@@ -163,7 +166,7 @@ public static class TestCases
 			"Expect.That(subject).IsNotEquivalentTo(unexpected)");
 		theoryData.AddWithBecause("int[] subject = [];int[] unexpected = [];",
 			"subject.Should().NotBeEquivalentTo(unexpected, {0})",
-			"Expect.That(subject).IsNotEqualTo(unexpected)");
+			"Expect.That(subject).IsNotEqualTo(unexpected).InAnyOrder()");
 		return theoryData;
 	}
 
