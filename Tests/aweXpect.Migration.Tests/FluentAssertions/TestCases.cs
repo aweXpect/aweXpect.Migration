@@ -89,6 +89,21 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().ContainSingle({0})",
 			"Expect.That(subject).HasSingle()");
+		theoryData.AddWithBecause("IEnumerable<int> subject = Enumerable.Range(1, 3);",
+			"subject.Should().AllBeEquivalentTo(1, {0})",
+			"Expect.That(subject).All().AreEquivalentTo(1)");
+		theoryData.AddWithBecause("string[] subject = [\"1\", \"2\",];",
+			"subject.Should().AllBeEquivalentTo(\"2\", {0})",
+			"Expect.That(subject).All().AreEqualTo(\"2\")");
+		theoryData.AddWithBecause("string[] subject = [\"1\", \"2\",];",
+			"subject.Should().AllBeEquivalentTo(\"2\", o => o.IgnoringCase(), {0})",
+			"Expect.That(subject).All().AreEqualTo(\"2\").IgnoringCase()");
+		theoryData.AddWithBecause("string[] subject = [\"1\", \"2\",];",
+			"subject.Should().AllBeEquivalentTo(\"2\", o => o.IgnoringLeadingWhitespace(), {0})",
+			"Expect.That(subject).All().AreEqualTo(\"2\").IgnoringLeadingWhiteSpace()");
+		theoryData.AddWithBecause("IEnumerable<string> subject = [\"1\", \"2\",];",
+			"subject.Should().AllBeEquivalentTo(\"2\", o => o.IgnoringTrailingWhitespace(), {0})",
+			"Expect.That(subject).All().AreEqualTo(\"2\").IgnoringTrailingWhiteSpace()");
 		theoryData.AddWithBecause("object[] subject = [];",
 			"subject.Should().AllBeAssignableTo<ArgumentException>({0})",
 			"Expect.That(subject).All().Are<ArgumentException>()");

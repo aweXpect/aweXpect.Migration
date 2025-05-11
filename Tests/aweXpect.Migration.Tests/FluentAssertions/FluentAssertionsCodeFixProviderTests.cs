@@ -307,6 +307,7 @@ public class FluentAssertionsCodeFixProviderTests
 			$$"""
 			  using System;
 			  using System.Collections.Generic;
+			  using System.Linq;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using aweXpect.Core;
@@ -327,6 +328,7 @@ public class FluentAssertionsCodeFixProviderTests
 			$$"""
 			  using System;
 			  using System.Collections.Generic;
+			  using System.Linq;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using aweXpect.Core;
@@ -355,6 +357,7 @@ public class FluentAssertionsCodeFixProviderTests
 			$$"""
 			  using System;
 			  using System.Collections.Generic;
+			  using System.Linq;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using aweXpect.Core;
@@ -375,6 +378,7 @@ public class FluentAssertionsCodeFixProviderTests
 			$$"""
 			  using System;
 			  using System.Collections.Generic;
+			  using System.Linq;
 			  using System.Threading.Tasks;
 			  using aweXpect;
 			  using aweXpect.Core;
