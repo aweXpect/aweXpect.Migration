@@ -207,6 +207,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 					$"Expect.That({actual}).All().Are<{genericArgs}>()", 0)
 				: ParseExpressionWithBecause(
 					$"Expect.That({actual}).All().Are({expected})", 1),
+			"AllBeEquivalentTo" => await AllBeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods, wrapSynchronously),
 			"AllBeOfType" => isGeneric
 				? ParseExpressionWithBecause(
 					$"Expect.That({actual}).All().AreExactly<{genericArgs}>()", 0)
@@ -303,6 +305,59 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
 			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
+			methods, wrapSynchronously, 1);
+	}
+
+	private static async Task<ExpressionSyntax?> AllBeEquivalentTo(CodeFixContext context,
+		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously,
+		bool negated = false)
+	{
+		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual).Symbol;
+		if (semanticModel is not null && actualSymbol is not null &&
+		    GetType(actualSymbol) is { } actualSymbolType && IsStringEnumerable(actualSymbolType))
+		{
+			string expressionSuffix = "";
+			int becauseIndex = 1;
+			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
+			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
+			{
+				if (secondArgument.Contains(".WithoutStrictOrdering()"))
+				{
+					expressionSuffix += ".InAnyOrder()";
+				}
+
+				if (secondArgument.Contains(".IgnoringCase()"))
+				{
+					expressionSuffix += ".IgnoringCase()";
+				}
+
+				if (secondArgument.Contains(".IgnoringLeadingWhitespace()"))
+				{
+					expressionSuffix += ".IgnoringLeadingWhiteSpace()";
+				}
+
+				if (secondArgument.Contains(".IgnoringTrailingWhitespace()"))
+				{
+					expressionSuffix += ".IgnoringTrailingWhiteSpace()";
+				}
+
+				if (secondArgument.Contains(".IgnoringNewlineStyle()"))
+				{
+					expressionSuffix += ".IgnoringNewlineStyle()";
+				}
+
+				becauseIndex++;
+			}
+
+			return ParseExpressionWithBecauseSupport(argumentListArguments,
+				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" + expressionSuffix,
+				methods, wrapSynchronously, becauseIndex);
+		}
+
+		return ParseExpressionWithBecauseSupport(argumentListArguments,
+			$"Expect.That({actual}).All().{(negated ? "AreNotEquivalentTo" : "AreEquivalentTo")}({expected})",
 			methods, wrapSynchronously, 1);
 	}
 
@@ -490,6 +545,23 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			    or "global::System.Collections.Generic.IEnumerable")
 		{
 			return true;
+		}
+
+		return typeSymbol.AllInterfaces.Any(i => i.GloballyQualified() == "global::System.Collections.IEnumerable");
+	}
+
+	private static bool IsStringEnumerable(ITypeSymbol typeSymbol)
+	{
+		if (typeSymbol is IArrayTypeSymbol arraySymbol)
+		{
+			return arraySymbol.ElementType.Name.Equals("string", StringComparison.OrdinalIgnoreCase);
+		}
+
+		if (typeSymbol is INamedTypeSymbol namedTypeSymbol
+		    && namedTypeSymbol.GloballyQualifiedNonGeneric() is "global::System.Collections.IEnumerable"
+			    or "global::System.Collections.Generic.IEnumerable")
+		{
+			return namedTypeSymbol.TypeArguments[0].Name.Equals("string", StringComparison.OrdinalIgnoreCase);
 		}
 
 		return typeSymbol.AllInterfaces.Any(i => i.GloballyQualified() == "global::System.Collections.IEnumerable");
