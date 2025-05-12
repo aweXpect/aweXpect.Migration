@@ -251,6 +251,9 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	}
 #pragma warning restore S3776
 
+	private static bool IsString(ISymbol symbol)
+		=> symbol.Name.Equals("string", StringComparison.OrdinalIgnoreCase);
+
 	private static async Task<ExpressionSyntax?> BeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
 		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously,
@@ -261,14 +264,15 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		if (semanticModel is not null && actualSymbol is not null &&
 		    GetType(actualSymbol) is { } actualSymbolType && IsEnumerable(actualSymbolType))
 		{
-			string expressionSuffix = "";
+			
+			string expressionSuffix = IsString(actualSymbolType) ? "" : ".InAnyOrder()";
 			int becauseIndex = 1;
 			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
 			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
 			{
-				if (secondArgument.Contains(".WithoutStrictOrdering()"))
+				if (secondArgument.Contains(".WithStrictOrdering()"))
 				{
-					expressionSuffix += ".InAnyOrder()";
+					expressionSuffix = "";
 				}
 
 				if (secondArgument.Contains(".IgnoringCase()"))
