@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<PackageVersion Include="Nuke.Common" Version="9.0.4"/>
 		<PackageVersion Include="Nuke.Components" Version="9.0.4"/>
-		<PackageVersion Include="LibGit2Sharp" Version="0.30.0"/>
+		<PackageVersion Include="LibGit2Sharp" Version="0.31.0"/>
 		<PackageVersion Include="SharpCompress" Version="0.39.0"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -25,14 +25,14 @@
 		<PackageVersion Include="FluentAssertions" Version="8.2.0"/>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.CodeAnalysis" Version="4.11.0"/>
+		<PackageVersion Include="Microsoft.CodeAnalysis" Version="4.13.0"/>
 		<PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.13.0" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.2" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.2" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing" Version="1.1.2" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.11.0" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.13.0" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.13.0" />
 	</ItemGroup>
 </Project>
