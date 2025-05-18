@@ -262,45 +262,54 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? actualSymbol = semanticModel.GetSymbolInfo(actual).Symbol;
 		if (semanticModel is not null && actualSymbol is not null &&
-		    GetType(actualSymbol) is { } actualSymbolType && IsEnumerable(actualSymbolType))
+		    GetType(actualSymbol) is { } actualSymbolType)
 		{
-			
-			string expressionSuffix = IsString(actualSymbolType) ? "" : ".InAnyOrder()";
-			int becauseIndex = 1;
-			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
-			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
+			if (actualSymbolType.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
 			{
-				if (secondArgument.Contains(".WithStrictOrdering()"))
-				{
-					expressionSuffix = "";
-				}
-
-				if (secondArgument.Contains(".IgnoringCase()"))
-				{
-					expressionSuffix += ".IgnoringCase()";
-				}
-
-				if (secondArgument.Contains(".IgnoringLeadingWhitespace()"))
-				{
-					expressionSuffix += ".IgnoringLeadingWhiteSpace()";
-				}
-
-				if (secondArgument.Contains(".IgnoringTrailingWhitespace()"))
-				{
-					expressionSuffix += ".IgnoringTrailingWhiteSpace()";
-				}
-
-				if (secondArgument.Contains(".IgnoringNewlineStyle()"))
-				{
-					expressionSuffix += ".IgnoringNewlineStyle()";
-				}
-
-				becauseIndex++;
+				return ParseExpressionWithBecauseSupport(argumentListArguments,
+					$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected}).IgnoringCase()",
+					methods, wrapSynchronously, 1);
 			}
 
-			return ParseExpressionWithBecauseSupport(argumentListArguments,
-				$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
-				methods, wrapSynchronously, becauseIndex);
+			if (IsEnumerable(actualSymbolType))
+			{
+				string expressionSuffix = IsString(actualSymbolType) ? "" : ".InAnyOrder()";
+				int becauseIndex = 1;
+				string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
+				if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
+				{
+					if (secondArgument.Contains(".WithStrictOrdering()"))
+					{
+						expressionSuffix = "";
+					}
+
+					if (secondArgument.Contains(".IgnoringCase()"))
+					{
+						expressionSuffix += ".IgnoringCase()";
+					}
+
+					if (secondArgument.Contains(".IgnoringLeadingWhitespace()"))
+					{
+						expressionSuffix += ".IgnoringLeadingWhiteSpace()";
+					}
+
+					if (secondArgument.Contains(".IgnoringTrailingWhitespace()"))
+					{
+						expressionSuffix += ".IgnoringTrailingWhiteSpace()";
+					}
+
+					if (secondArgument.Contains(".IgnoringNewlineStyle()"))
+					{
+						expressionSuffix += ".IgnoringNewlineStyle()";
+					}
+
+					becauseIndex++;
+				}
+
+				return ParseExpressionWithBecauseSupport(argumentListArguments,
+					$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
+					methods, wrapSynchronously, becauseIndex);
+			}
 		}
 
 		return ParseExpressionWithBecauseSupport(argumentListArguments,
@@ -352,7 +361,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			}
 
 			return ParseExpressionWithBecauseSupport(argumentListArguments,
-				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" + expressionSuffix,
+				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" +
+				expressionSuffix,
 				methods, wrapSynchronously, becauseIndex);
 		}
 

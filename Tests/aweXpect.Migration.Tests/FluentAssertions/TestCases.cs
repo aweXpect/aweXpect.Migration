@@ -167,6 +167,9 @@ public static class TestCases
 		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, {0})",
 			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"foo\";",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase()");
 		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
 			"Expect.That(subject).IsEqualTo(expected)");
