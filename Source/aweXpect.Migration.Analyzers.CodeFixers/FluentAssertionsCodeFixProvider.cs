@@ -264,8 +264,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		if (semanticModel is not null && actualSymbol is not null &&
 		    GetType(actualSymbol) is { } actualSymbolType && IsEnumerable(actualSymbolType))
 		{
-			
-			string expressionSuffix = IsString(actualSymbolType) ? "" : ".InAnyOrder()";
+			string expressionSuffix = IsString(actualSymbolType) ? ".IgnoringCase()" : ".InAnyOrder()";
 			int becauseIndex = 1;
 			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
 			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
@@ -275,7 +274,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 					expressionSuffix = "";
 				}
 
-				if (secondArgument.Contains(".IgnoringCase()"))
+				if (secondArgument.Contains(".IgnoringCase()") && !expressionSuffix.Contains(".IgnoringCase()"))
 				{
 					expressionSuffix += ".IgnoringCase()";
 				}
@@ -352,7 +351,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			}
 
 			return ParseExpressionWithBecauseSupport(argumentListArguments,
-				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" + expressionSuffix,
+				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" +
+				expressionSuffix,
 				methods, wrapSynchronously, becauseIndex);
 		}
 

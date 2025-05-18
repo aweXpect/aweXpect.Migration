@@ -167,6 +167,9 @@ public static class TestCases
 		theoryData.AddWithBecause("byte[] subject = [];byte[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, {0})",
 			"Expect.That(subject).IsEqualTo(expected).InAnyOrder()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"foo\";",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase()");
 		theoryData.AddWithBecause("IEnumerable<string> subject = [];string[] expected = [];",
 			"subject.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering(), {0})",
 			"Expect.That(subject).IsEqualTo(expected)");
@@ -414,17 +417,20 @@ public static class TestCases
 			"subject.Should().NotEndWith(unexpected, {0})",
 			"Expect.That(subject).DoesNotEndWith(unexpected)");
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
+			"subject.Should().BeEquivalentTo(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase()");
+		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringCase(), {0})",
 			"Expect.That(subject).IsEqualTo(expected).IgnoringCase()");
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringLeadingWhitespace(), {0})",
-			"Expect.That(subject).IsEqualTo(expected).IgnoringLeadingWhiteSpace()");
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase().IgnoringLeadingWhiteSpace()");
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringTrailingWhitespace(), {0})",
-			"Expect.That(subject).IsEqualTo(expected).IgnoringTrailingWhiteSpace()");
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase().IgnoringTrailingWhiteSpace()");
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringNewlineStyle(), {0})",
-			"Expect.That(subject).IsEqualTo(expected).IgnoringNewlineStyle()");
+			"Expect.That(subject).IsEqualTo(expected).IgnoringCase().IgnoringNewlineStyle()");
 		return theoryData;
 	}
 
