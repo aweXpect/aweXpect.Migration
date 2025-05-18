@@ -92,6 +92,9 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().ContainSingle({0})",
 			"Expect.That(subject).HasSingle()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().Contain(1).And.Contain(2, {0})",
+			"Expect.That(subject).Contains(1).And.Contains(2)");
 		theoryData.AddWithBecause("IEnumerable<int> subject = Enumerable.Range(1, 3);",
 			"subject.Should().AllBeEquivalentTo(1, {0})",
 			"Expect.That(subject).All().AreEquivalentTo(1)");

@@ -58,205 +58,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return document.WithSyntaxRoot(compilationUnit);
 	}
 
-#pragma warning disable S3776
-	private static async Task<ExpressionSyntax?> GetNewExpression(
-		CodeFixContext context,
-		ExpressionSyntax actual,
-		Stack<MethodDefinition> methods,
-		bool wrapSynchronously)
-	{
-		MethodDefinition? mainMethod = methods.Pop();
-		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = mainMethod.Method;
-		ArgumentSyntax? expected = mainMethod.Arguments.ElementAtOrDefault(0);
-		string? expectedType = null;
-
-		if (expected is not null)
-		{
-			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
-			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
-
-			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol)
-			{
-				expectedType = methodSymbol.Parameters[0].Type.Name;
-			}
-		}
-
-		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
-		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
-		bool isGeneric = !string.IsNullOrEmpty(genericArgs);
-
-		ExpressionSyntax? ParseExpressionWithBecause(string expression, int? becauseIndex = null)
-			=> ParseExpressionWithBecauseSupport(mainMethod.Arguments, expression, methods, wrapSynchronously,
-				becauseIndex);
-
-		return methodName switch
-		{
-			"Be" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsEqualTo({expected})", 1),
-			"NotBe" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotEqualTo({expected})", 1),
-			"BeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
-				methods, wrapSynchronously),
-			"NotBeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
-				methods, wrapSynchronously, true),
-			"Contain" => Contain(mainMethod, actual, expected, methods, wrapSynchronously),
-			"NotContain" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).DoesNotContain({expected})", 1),
-			"StartWith" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).StartsWith({expected})", 1),
-			"NotStartWith" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).DoesNotStartWith({expected})", 1),
-			"EndWith" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).EndsWith({expected})", 1),
-			"NotEndWith" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).DoesNotEndWith({expected})", 1),
-			"BeEmpty" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsEmpty()", 0),
-			"NotBeEmpty" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotEmpty()", 0),
-			"BeNullOrEmpty" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNullOrEmpty()", 0),
-			"NotBeNullOrEmpty" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotNullOrEmpty()", 0),
-			"BeNullOrWhiteSpace" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNullOrWhiteSpace()", 0),
-			"NotBeNullOrWhiteSpace" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotNullOrWhiteSpace()", 0),
-			"BePositive" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsPositive()", 0),
-			"BeNegative" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNegative()", 0),
-			"BeGreaterThan" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsGreaterThan({expected})", 1),
-			"BeGreaterThanOrEqualTo" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsGreaterThanOrEqualTo({expected})", 1),
-			"BeGreaterOrEqualTo" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsGreaterThanOrEqualTo({expected})", 1),
-			"BeLessThan" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsLessThan({expected})", 1),
-			"BeLessOrEqualTo" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsLessThanOrEqualTo({expected})", 1),
-			"BeLessThanOrEqualTo" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsLessThanOrEqualTo({expected})", 1),
-			"BeApproximately" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
-				2),
-			"BeAfter" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsAfter({expected})", 1),
-			"BeOnOrAfter" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsOnOrAfter({expected})", 1),
-			"BeBefore" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsBefore({expected})", 1),
-			"BeOnOrBefore" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsOnOrBefore({expected})", 1),
-			"NotBeAfter" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotAfter({expected})", 1),
-			"NotBeOnOrAfter" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotOnOrAfter({expected})", 1),
-			"NotBeBefore" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotBefore({expected})", 1),
-			"NotBeOnOrBefore" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotOnOrBefore({expected})", 1),
-			"NotBeNull" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotNull()", 0),
-			"BeNull" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNull()", 0),
-			"BeTrue" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsTrue()", 0),
-			"BeFalse" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsFalse()", 0),
-			"NotBeTrue" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotTrue()", 0),
-			"NotBeFalse" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotFalse()", 0),
-			"Imply" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).Implies({expected})", 1),
-			"BeDefined" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsDefined()", 0),
-			"NotBeDefined" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotDefined()", 0),
-			"HaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNotNull()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).HasValue({expected})", 1),
-			"NotHaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNull()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).DoesNotHaveValue({expected})", 1),
-			"HaveFlag" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).HasFlag({expected})", 1),
-			"NotHaveFlag" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).DoesNotHaveFlag({expected})", 1),
-			"BeSameAs" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsSameAs({expected})", 1),
-			"NotBeSameAs" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).IsNotSameAs({expected})", 1),
-			"BeOneOf" => await BeOneOf(context, mainMethod, actual, methods, wrapSynchronously),
-			"HaveCount" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).HasCount({expected})", 1),
-			"OnlyContain" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).All().Satisfy({expected})", 1),
-			"ContainSingle" =>
-				expectedType == null || expectedType.Equals("string", StringComparison.OrdinalIgnoreCase)
-					? ParseExpressionWithBecause($"Expect.That({actual}).HasSingle()", 0)
-					: ParseExpressionWithBecause($"Expect.That({actual}).HasSingle().Matching({expected})", 1),
-			"AllBeAssignableTo" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().Are<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().Are({expected})", 1),
-			"AllBeEquivalentTo" => await AllBeEquivalentTo(context, mainMethod.Arguments, actual, expected,
-				methods, wrapSynchronously),
-			"AllBeOfType" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().AreExactly<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).All().AreExactly({expected})", 1),
-			"BeAssignableTo" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).Is<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).Is({expected})", 1),
-			"NotBeAssignableTo" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNot<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNot({expected})", 1),
-			"BeOfType" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsExactly<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsExactly({expected})", 1),
-			"NotBeOfType" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNotExactly<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).IsNotExactly({expected})", 1),
-			"NotThrow" or "NotThrowAsync" => ParseExpressionWithBecause(
-				$"Expect.That({actual}).DoesNotThrow()", 0),
-			"Throw" or "ThrowAsync" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).Throws<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).Throws({expected})", 1),
-			"ThrowExactly" or "ThrowExactlyAsync" => isGeneric
-				? ParseExpressionWithBecause(
-					$"Expect.That({actual}).ThrowsExactly<{genericArgs}>()", 0)
-				: ParseExpressionWithBecause(
-					$"Expect.That({actual}).ThrowsExactly({expected})", 1),
-			_ => null,
-		};
-	}
-#pragma warning restore S3776
-
 	private static bool IsString(ISymbol symbol)
 		=> symbol.Name.Equals("string", StringComparison.OrdinalIgnoreCase);
 
-	private static async Task<ExpressionSyntax?> BeEquivalentTo(CodeFixContext context,
+	private static async Task<string?> BeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<DefinitionElement>? methods,
 		bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
@@ -297,19 +104,19 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				becauseIndex++;
 			}
 
-			return ParseExpressionWithBecauseSupport(argumentListArguments,
-				$"Expect.That({actual}).{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
-				methods, wrapSynchronously, becauseIndex);
+			return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+				$".{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
+				methods, becauseIndex);
 		}
 
-		return ParseExpressionWithBecauseSupport(argumentListArguments,
-			$"Expect.That({actual}).{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
-			methods, wrapSynchronously, 1);
+		return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+			$".{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
+			methods, 1);
 	}
 
-	private static async Task<ExpressionSyntax?> AllBeEquivalentTo(CodeFixContext context,
+	private static async Task<string?> AllBeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<MethodDefinition> methods, bool wrapSynchronously,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<DefinitionElement>? methods,
 		bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
@@ -350,23 +157,22 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				becauseIndex++;
 			}
 
-			return ParseExpressionWithBecauseSupport(argumentListArguments,
-				$"Expect.That({actual}).All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" +
+			return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+				$".All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" +
 				expressionSuffix,
-				methods, wrapSynchronously, becauseIndex);
+				methods, becauseIndex);
 		}
 
-		return ParseExpressionWithBecauseSupport(argumentListArguments,
-			$"Expect.That({actual}).All().{(negated ? "AreNotEquivalentTo" : "AreEquivalentTo")}({expected})",
-			methods, wrapSynchronously, 1);
+		return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+			$".All().{(negated ? "AreNotEquivalentTo" : "AreEquivalentTo")}({expected})",
+			methods, 1);
 	}
 
-	private static async Task<ExpressionSyntax?> BeOneOf(
+	private static async Task<string?> BeOneOf(
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		Stack<MethodDefinition> methods,
-		bool wrapSynchronously)
+		Stack<DefinitionElement>? methods)
 	{
 		if (mainMethod.Arguments.Count > 1)
 		{
@@ -376,24 +182,24 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			if (symbol is IMethodSymbol { Parameters.Length: > 1, } methodSymbol &&
 			    methodSymbol.Parameters[0].Type.Name != methodSymbol.Parameters[1].Type.Name)
 			{
-				return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
-					$"Expect.That({actual}).IsOneOf({mainMethod.Arguments[0]})",
-					methods, wrapSynchronously, 1);
+				return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+					$".IsOneOf({mainMethod.Arguments[0]})",
+					methods, 1);
 			}
 		}
 
 		string? arguments = string.Join(", ", mainMethod.Arguments.Select(x => x.ToString()));
-		return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
-			$"Expect.That({actual}).IsOneOf({arguments})",
-			methods, wrapSynchronously);
+		return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+			$".IsOneOf({arguments})",
+			methods);
 	}
 
-	private static ExpressionSyntax? Contain(
+	private static async Task<string?> Contain(
+		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
 		ArgumentSyntax? expected,
-		Stack<MethodDefinition> methods,
-		bool wrapSynchronously)
+		Stack<DefinitionElement>? methods)
 	{
 		string expressionSuffix = "";
 		if (mainMethod.Arguments.Count > 1)
@@ -451,23 +257,24 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			}
 		}
 
-		return ParseExpressionWithBecauseSupport(mainMethod.Arguments,
-			$"Expect.That({actual}).Contains({expected}){expressionSuffix}",
-			methods, wrapSynchronously, expressionSuffix == "" ? 1 : 2);
+		return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+			$".Contains({expected}){expressionSuffix}",
+			methods, expressionSuffix == "" ? 1 : 2);
 	}
 
-	private static ExpressionSyntax? ParseExpressionWithBecauseSupport(
+	private static async Task<string?> ParseExpressionWithBecauseSupport(
+		CodeFixContext context,
+		ExpressionSyntax actual,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
 		string expression,
-		Stack<MethodDefinition> methods,
-		bool wrapSynchronously,
+		Stack<DefinitionElement>? methods,
 		int? becauseIndex = null)
 	{
-		if (methods.Count > 0)
+		if (methods?.Count > 0)
 		{
-			foreach (MethodDefinition? method in methods)
+			foreach (DefinitionElement? method in methods)
 			{
-				expression += ParseAdditionalMethodExpression(method);
+				expression += await ParseAdditionalMethodExpression(context, actual, method) ?? "";
 			}
 		}
 
@@ -490,22 +297,31 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			}
 		}
 
-		if (wrapSynchronously)
-		{
-			expression = $"aweXpect.Synchronous.Synchronously.Verify({expression})";
-		}
-
-		return SyntaxFactory.ParseExpression(expression);
+		return expression;
 	}
 
-	private static string ParseAdditionalMethodExpression(MethodDefinition method)
+	private static async Task<string?> ParseAdditionalMethodExpression(
+		CodeFixContext context,
+		ExpressionSyntax actual,
+		DefinitionElement definitionElement)
 	{
-		string? methodName = method.Method.Name.Identifier.ValueText;
-		return methodName switch
+		if (definitionElement is MethodDefinitionElement methodDefinitionElement)
 		{
-			"WithMessage" => $".WithMessage({method.Arguments.ElementAtOrDefault(0)}).AsWildcard()",
-			_ => "",
-		};
+			MethodDefinition? method = methodDefinitionElement.Element;
+			string? methodName = method.Method.Name.Identifier.ValueText;
+			return methodName switch
+			{
+				"WithMessage" => $".WithMessage({method.Arguments.ElementAtOrDefault(0)}).AsWildcard()",
+				_ => await GetNewExpressionFor(context, actual, method, null),
+			};
+		}
+
+		if (definitionElement is AndDefinitionElement)
+		{
+			return ".And";
+		}
+
+		return null;
 	}
 
 	private static ITypeSymbol? GetType(ISymbol symbol)
@@ -590,6 +406,15 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		public SeparatedSyntaxList<ArgumentSyntax> Arguments { get; }
 	}
 
+	private abstract class DefinitionElement;
+
+	private class MethodDefinitionElement(MethodDefinition methodDefinition) : DefinitionElement
+	{
+		public MethodDefinition Element => methodDefinition;
+	}
+
+	private class AndDefinitionElement : DefinitionElement;
+
 	private sealed class ExpressionSyntaxWalker(bool isConditional) : SyntaxWalker
 	{
 		private bool _isConditional = isConditional;
@@ -597,7 +422,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		private string _subjectString = "";
 		public ExpressionSyntax? Subject { get; private set; }
 
-		public Stack<MethodDefinition> Methods { get; } = [];
+		public Stack<DefinitionElement> Methods { get; } = [];
 
 		public override void Visit(SyntaxNode node)
 		{
@@ -640,7 +465,11 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				}
 				else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
 				{
-					Methods.Push(new MethodDefinition(memberAccessExpressionSyntax));
+					Methods.Push(new MethodDefinitionElement(new MethodDefinition(memberAccessExpressionSyntax)));
+				}
+				else if (memberAccessExpressionSyntax.Name.Identifier.ValueText == "And")
+				{
+					Methods.Push(new AndDefinitionElement());
 				}
 			}
 
@@ -650,4 +479,224 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			}
 		}
 	}
+
+#pragma warning disable S3776
+	private static async Task<ExpressionSyntax?> GetNewExpression(
+		CodeFixContext context,
+		ExpressionSyntax actual,
+		Stack<DefinitionElement> methods,
+		bool wrapSynchronously)
+	{
+		DefinitionElement? mainMethodDefinition = methods.Pop();
+		if (mainMethodDefinition is not MethodDefinitionElement methodDefinitionElement)
+		{
+			return actual;
+		}
+
+		MethodDefinition mainMethod = methodDefinitionElement.Element;
+
+		string? newExpression = await GetNewExpressionFor(context, actual, mainMethod, methods);
+		if (newExpression != null)
+		{
+			newExpression = $"Expect.That({actual}){newExpression}";
+			if (wrapSynchronously)
+			{
+				newExpression = $"aweXpect.Synchronous.Synchronously.Verify({newExpression})";
+			}
+
+			return SyntaxFactory.ParseExpression(newExpression);
+		}
+
+		return actual;
+	}
+
+	private static async Task<string?> GetNewExpressionFor(
+		CodeFixContext context,
+		ExpressionSyntax actual,
+		MethodDefinition mainMethod,
+		Stack<DefinitionElement>? methods)
+	{
+		Task<string?> ParseExpressionWithBecause(string expression, int? becauseIndex = null)
+			=> ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments, expression, methods,
+				becauseIndex);
+
+		MemberAccessExpressionSyntax? memberAccessExpressionSyntax = mainMethod.Method;
+		ArgumentSyntax? expected = mainMethod.Arguments.ElementAtOrDefault(0);
+		string? expectedType = null;
+
+		if (expected is not null)
+		{
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
+
+			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol)
+			{
+				expectedType = methodSymbol.Parameters[0].Type.Name;
+			}
+		}
+
+		string? methodName = memberAccessExpressionSyntax.Name.Identifier.ValueText;
+		string? genericArgs = GetGenericArguments(memberAccessExpressionSyntax.Name);
+		bool isGeneric = !string.IsNullOrEmpty(genericArgs);
+		return methodName switch
+		{
+			"Be" => await ParseExpressionWithBecause(
+				$".IsEqualTo({expected})", 1),
+			"NotBe" => await ParseExpressionWithBecause(
+				$".IsNotEqualTo({expected})", 1),
+			"BeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods),
+			"NotBeEquivalentTo" => await BeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods, true),
+			"Contain" => await Contain(context, mainMethod, actual, expected, methods),
+			"NotContain" => await ParseExpressionWithBecause(
+				$".DoesNotContain({expected})", 1),
+			"StartWith" => await ParseExpressionWithBecause(
+				$".StartsWith({expected})", 1),
+			"NotStartWith" => await ParseExpressionWithBecause(
+				$".DoesNotStartWith({expected})", 1),
+			"EndWith" => await ParseExpressionWithBecause(
+				$".EndsWith({expected})", 1),
+			"NotEndWith" => await ParseExpressionWithBecause(
+				$".DoesNotEndWith({expected})", 1),
+			"BeEmpty" => await ParseExpressionWithBecause(
+				".IsEmpty()", 0),
+			"NotBeEmpty" => await ParseExpressionWithBecause(
+				".IsNotEmpty()", 0),
+			"BeNullOrEmpty" => await ParseExpressionWithBecause(
+				".IsNullOrEmpty()", 0),
+			"NotBeNullOrEmpty" => await ParseExpressionWithBecause(
+				".IsNotNullOrEmpty()", 0),
+			"BeNullOrWhiteSpace" => await ParseExpressionWithBecause(
+				".IsNullOrWhiteSpace()", 0),
+			"NotBeNullOrWhiteSpace" => await ParseExpressionWithBecause(
+				".IsNotNullOrWhiteSpace()", 0),
+			"BePositive" => await ParseExpressionWithBecause(
+				".IsPositive()", 0),
+			"BeNegative" => await ParseExpressionWithBecause(
+				".IsNegative()", 0),
+			"BeGreaterThan" => await ParseExpressionWithBecause(
+				$".IsGreaterThan({expected})", 1),
+			"BeGreaterThanOrEqualTo" => await ParseExpressionWithBecause(
+				$".IsGreaterThanOrEqualTo({expected})", 1),
+			"BeGreaterOrEqualTo" => await ParseExpressionWithBecause(
+				$".IsGreaterThanOrEqualTo({expected})", 1),
+			"BeLessThan" => await ParseExpressionWithBecause(
+				$".IsLessThan({expected})", 1),
+			"BeLessOrEqualTo" => await ParseExpressionWithBecause(
+				$".IsLessThanOrEqualTo({expected})", 1),
+			"BeLessThanOrEqualTo" => await ParseExpressionWithBecause(
+				$".IsLessThanOrEqualTo({expected})", 1),
+			"BeApproximately" => await ParseExpressionWithBecause(
+				$".IsEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
+				2),
+			"BeAfter" => await ParseExpressionWithBecause(
+				$".IsAfter({expected})", 1),
+			"BeOnOrAfter" => await ParseExpressionWithBecause(
+				$".IsOnOrAfter({expected})", 1),
+			"BeBefore" => await ParseExpressionWithBecause(
+				$".IsBefore({expected})", 1),
+			"BeOnOrBefore" => await ParseExpressionWithBecause(
+				$".IsOnOrBefore({expected})", 1),
+			"NotBeAfter" => await ParseExpressionWithBecause(
+				$".IsNotAfter({expected})", 1),
+			"NotBeOnOrAfter" => await ParseExpressionWithBecause(
+				$".IsNotOnOrAfter({expected})", 1),
+			"NotBeBefore" => await ParseExpressionWithBecause(
+				$".IsNotBefore({expected})", 1),
+			"NotBeOnOrBefore" => await ParseExpressionWithBecause(
+				$".IsNotOnOrBefore({expected})", 1),
+			"NotBeNull" => await ParseExpressionWithBecause(
+				".IsNotNull()", 0),
+			"BeNull" => await ParseExpressionWithBecause(
+				".IsNull()", 0),
+			"BeTrue" => await ParseExpressionWithBecause(
+				".IsTrue()", 0),
+			"BeFalse" => await ParseExpressionWithBecause(
+				".IsFalse()", 0),
+			"NotBeTrue" => await ParseExpressionWithBecause(
+				".IsNotTrue()", 0),
+			"NotBeFalse" => await ParseExpressionWithBecause(
+				".IsNotFalse()", 0),
+			"Imply" => await ParseExpressionWithBecause(
+				$".Implies({expected})", 1),
+			"BeDefined" => await ParseExpressionWithBecause(
+				".IsDefined()", 0),
+			"NotBeDefined" => await ParseExpressionWithBecause(
+				".IsNotDefined()", 0),
+			"HaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
+				? await ParseExpressionWithBecause(
+					".IsNotNull()", 0)
+				: await ParseExpressionWithBecause(
+					$".HasValue({expected})", 1),
+			"NotHaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
+				? await ParseExpressionWithBecause(
+					".IsNull()", 0)
+				: await ParseExpressionWithBecause(
+					$".DoesNotHaveValue({expected})", 1),
+			"HaveFlag" => await ParseExpressionWithBecause(
+				$".HasFlag({expected})", 1),
+			"NotHaveFlag" => await ParseExpressionWithBecause(
+				$".DoesNotHaveFlag({expected})", 1),
+			"BeSameAs" => await ParseExpressionWithBecause(
+				$".IsSameAs({expected})", 1),
+			"NotBeSameAs" => await ParseExpressionWithBecause(
+				$".IsNotSameAs({expected})", 1),
+			"BeOneOf" => await BeOneOf(context, mainMethod, actual, methods),
+			"HaveCount" => await ParseExpressionWithBecause(
+				$".HasCount({expected})", 1),
+			"OnlyContain" => await ParseExpressionWithBecause(
+				$".All().Satisfy({expected})", 1),
+			"ContainSingle" =>
+				expectedType == null || expectedType.Equals("string", StringComparison.OrdinalIgnoreCase)
+					? await ParseExpressionWithBecause(".HasSingle()", 0)
+					: await ParseExpressionWithBecause($".HasSingle().Matching({expected})", 1),
+			"AllBeAssignableTo" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".All().Are<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".All().Are({expected})", 1),
+			"AllBeEquivalentTo" => await AllBeEquivalentTo(context, mainMethod.Arguments, actual, expected,
+				methods),
+			"AllBeOfType" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".All().AreExactly<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".All().AreExactly({expected})", 1),
+			"BeAssignableTo" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".Is<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".Is({expected})", 1),
+			"NotBeAssignableTo" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".IsNot<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".IsNot({expected})", 1),
+			"BeOfType" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".IsExactly<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".IsExactly({expected})", 1),
+			"NotBeOfType" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".IsNotExactly<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".IsNotExactly({expected})", 1),
+			"NotThrow" or "NotThrowAsync" => await ParseExpressionWithBecause(
+				".DoesNotThrow()", 0),
+			"Throw" or "ThrowAsync" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".Throws<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".Throws({expected})", 1),
+			"ThrowExactly" or "ThrowExactlyAsync" => isGeneric
+				? await ParseExpressionWithBecause(
+					$".ThrowsExactly<{genericArgs}>()", 0)
+				: await ParseExpressionWithBecause(
+					$".ThrowsExactly({expected})", 1),
+			_ => null,
+		};
+	}
+#pragma warning restore S3776
 }
