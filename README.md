@@ -5,27 +5,24 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=aweXpect_aweXpect.Migration&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=aweXpect_aweXpect.Migration)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=aweXpect_aweXpect.Migration&metric=coverage)](https://sonarcloud.io/summary/overall?id=aweXpect_aweXpect.Migration)
 
-Migration helpers from other assertion libraries to [aweXpect](https://github.com/aweXpect/aweXpect).
+We added support to migrate from other testing frameworks.
 
-## Xunit
-
-1. Add the `aweXpect.Migration` package reference in addition to the `aweXpect` in the test project.
-2. All usages of `Assert` will be marked with an `aweXpectM003` warning: "Xunit assertions should be migrated to aweXpect"
-3. Most warnings can be automatically fixed with a code fix provider
-4. Fix the remaining warnings manually
-5. Remove the `aweXpect.Migration` package
-
-
-## FluentAssertions
-
-1. Add the `aweXpect.Migration` package reference in addition to the `aweXpect` in the test project.
-   Add the following global using statements in the test project:
+1. Temporarily install the
+   `aweXpect.Migration` package in the test project and add the following global using statements in the test project:
    ```csharp
-   global using System.Threading.Tasks;`
+   global using System.Threading.Tasks;
    global using aweXpect;
    ```
-2. All usages of `.Should()` will be marked with an `aweXpectM002` warning: "fluentassertions should be migrated to aweXpect"
-3. Most warnings can be automatically fixed with a code fix provider
-4. Fix all occurrences of `aweXpect0001`: "Expectations must be awaited or verified"
-5. Fix the remaining warnings manually
-6. Remove the `aweXpect.Migration` package
+
+2. Depending on the framework, the assertions will be marked with a warning:
+	- For [FluentAssertions](https://fluentassertions.com/):  
+      All usages of `.Should()` will be marked with
+	  `aweXpectM002: fluentassertions should be migrated to aweXpect`
+	- For [Xunit](https://xunit.net/):  
+      All usages of `Assert` will be marked with `aweXpectM003: Xunit assertions should be migrated to aweXpect`
+
+3. Most warnings can be automatically fixed with a code fix provider. Make sure to await all migrated expectations (fix `aweXpect0001: Expectations must be awaited or verified`).
+
+4. Fix the remaining warnings manually.
+
+5. Remove the `aweXpect.Migration` package again.
