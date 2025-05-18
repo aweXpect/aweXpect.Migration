@@ -59,11 +59,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	}
 
 	private static bool IsString(ISymbol symbol)
-		=> symbol.Name.Equals("string", StringComparison.OrdinalIgnoreCase);
+		=> symbol.Name.Equals(nameof(String), StringComparison.OrdinalIgnoreCase);
 
+#pragma warning disable S3776
 	private static async Task<string?> BeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<DefinitionElement>? methods,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<IDefinitionElement>? methods,
 		bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
@@ -113,10 +114,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			$".{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
 			methods, 1);
 	}
+#pragma warning restore S3776
 
+#pragma warning disable S3776
 	private static async Task<string?> AllBeEquivalentTo(CodeFixContext context,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
-		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<DefinitionElement>? methods,
+		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<IDefinitionElement>? methods,
 		bool negated = false)
 	{
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
@@ -167,12 +170,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			$".All().{(negated ? "AreNotEquivalentTo" : "AreEquivalentTo")}({expected})",
 			methods, 1);
 	}
+#pragma warning restore S3776
 
 	private static async Task<string?> BeOneOf(
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		Stack<DefinitionElement>? methods)
+		Stack<IDefinitionElement>? methods)
 	{
 		if (mainMethod.Arguments.Count > 1)
 		{
@@ -199,7 +203,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
 		ArgumentSyntax? expected,
-		Stack<DefinitionElement>? methods)
+		Stack<IDefinitionElement>? methods)
 	{
 		string expressionSuffix = "";
 		if (mainMethod.Arguments.Count > 1)
@@ -267,12 +271,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		ExpressionSyntax actual,
 		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
 		string expression,
-		Stack<DefinitionElement>? methods,
+		Stack<IDefinitionElement>? methods,
 		int? becauseIndex = null)
 	{
 		if (methods?.Count > 0)
 		{
-			foreach (DefinitionElement? method in methods)
+			foreach (IDefinitionElement? method in methods)
 			{
 				expression += await ParseAdditionalMethodExpression(context, actual, method) ?? "";
 			}
@@ -303,7 +307,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	private static async Task<string?> ParseAdditionalMethodExpression(
 		CodeFixContext context,
 		ExpressionSyntax actual,
-		DefinitionElement definitionElement)
+		IDefinitionElement definitionElement)
 	{
 		if (definitionElement is MethodDefinitionElement methodDefinitionElement)
 		{
@@ -370,14 +374,14 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	{
 		if (typeSymbol is IArrayTypeSymbol arraySymbol)
 		{
-			return arraySymbol.ElementType.Name.Equals("string", StringComparison.OrdinalIgnoreCase);
+			return arraySymbol.ElementType.Name.Equals(nameof(String), StringComparison.OrdinalIgnoreCase);
 		}
 
 		if (typeSymbol is INamedTypeSymbol namedTypeSymbol
 		    && namedTypeSymbol.GloballyQualifiedNonGeneric() is "global::System.Collections.IEnumerable"
 			    or "global::System.Collections.Generic.IEnumerable")
 		{
-			return namedTypeSymbol.TypeArguments[0].Name.Equals("string", StringComparison.OrdinalIgnoreCase);
+			return namedTypeSymbol.TypeArguments[0].Name.Equals(nameof(String), StringComparison.OrdinalIgnoreCase);
 		}
 
 		return typeSymbol.AllInterfaces.Any(i => i.GloballyQualified() == "global::System.Collections.IEnumerable");
@@ -393,101 +397,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return string.Empty;
 	}
 
-	private sealed class MethodDefinition
-	{
-		public MethodDefinition(MemberAccessExpressionSyntax method)
-		{
-			Method = method;
-			InvocationExpressionSyntax? invocationExpressionSyntax = method.Parent as InvocationExpressionSyntax;
-			Arguments = invocationExpressionSyntax?.ArgumentList.Arguments ?? [];
-		}
-
-		public MemberAccessExpressionSyntax Method { get; }
-		public SeparatedSyntaxList<ArgumentSyntax> Arguments { get; }
-	}
-
-	private abstract class DefinitionElement;
-
-	private class MethodDefinitionElement(MethodDefinition methodDefinition) : DefinitionElement
-	{
-		public MethodDefinition Element => methodDefinition;
-	}
-
-	private class AndDefinitionElement : DefinitionElement;
-
-	private sealed class ExpressionSyntaxWalker(bool isConditional) : SyntaxWalker
-	{
-		private bool _isConditional = isConditional;
-		private bool _isShould;
-		private string _subjectString = "";
-		public ExpressionSyntax? Subject { get; private set; }
-
-		public Stack<DefinitionElement> Methods { get; } = [];
-
-		public override void Visit(SyntaxNode node)
-		{
-			if (_isConditional)
-			{
-				if (_subjectString == "" && node is IdentifierNameSyntax identifierNameSyntax)
-				{
-					_subjectString = identifierNameSyntax.ToString();
-				}
-
-				if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
-				{
-					_subjectString += "?" + memberBindingExpressionSyntax;
-				}
-
-				if (node is ArgumentListSyntax invocationExpressionSyntax)
-				{
-					_subjectString += invocationExpressionSyntax;
-				}
-			}
-
-			if (_isShould && node is not ParenthesizedExpressionSyntax)
-			{
-				Subject = node as ExpressionSyntax;
-				_isShould = false;
-			}
-
-			if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
-			{
-				_isShould = memberAccessExpressionSyntax.Name.Identifier.ValueText == "Should";
-				if (_isShould)
-				{
-					if (_isConditional)
-					{
-						Subject = SyntaxFactory.ParseExpression(
-							_subjectString + "?" + memberAccessExpressionSyntax.Expression);
-						_isShould = false;
-						_isConditional = false;
-					}
-				}
-				else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
-				{
-					Methods.Push(new MethodDefinitionElement(new MethodDefinition(memberAccessExpressionSyntax)));
-				}
-				else if (memberAccessExpressionSyntax.Name.Identifier.ValueText == "And")
-				{
-					Methods.Push(new AndDefinitionElement());
-				}
-			}
-
-			if (node is not ArgumentSyntax)
-			{
-				base.Visit(node);
-			}
-		}
-	}
-
-#pragma warning disable S3776
 	private static async Task<ExpressionSyntax?> GetNewExpression(
 		CodeFixContext context,
 		ExpressionSyntax actual,
-		Stack<DefinitionElement> methods,
+		Stack<IDefinitionElement> methods,
 		bool wrapSynchronously)
 	{
-		DefinitionElement? mainMethodDefinition = methods.Pop();
+		IDefinitionElement? mainMethodDefinition = methods.Pop();
 		if (mainMethodDefinition is not MethodDefinitionElement methodDefinitionElement)
 		{
 			return actual;
@@ -510,11 +426,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return actual;
 	}
 
+#pragma warning disable S3776
 	private static async Task<string?> GetNewExpressionFor(
 		CodeFixContext context,
 		ExpressionSyntax actual,
 		MethodDefinition mainMethod,
-		Stack<DefinitionElement>? methods)
+		Stack<IDefinitionElement>? methods)
 	{
 		Task<string?> ParseExpressionWithBecause(string expression, int? becauseIndex = null)
 			=> ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments, expression, methods,
@@ -648,7 +565,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			"OnlyContain" => await ParseExpressionWithBecause(
 				$".All().Satisfy({expected})", 1),
 			"ContainSingle" =>
-				expectedType == null || expectedType.Equals("string", StringComparison.OrdinalIgnoreCase)
+				expectedType == null || expectedType.Equals(nameof(String), StringComparison.OrdinalIgnoreCase)
 					? await ParseExpressionWithBecause(".HasSingle()", 0)
 					: await ParseExpressionWithBecause($".HasSingle().Matching({expected})", 1),
 			"AllBeAssignableTo" => isGeneric
@@ -699,4 +616,91 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		};
 	}
 #pragma warning restore S3776
+
+	private sealed class MethodDefinition
+	{
+		public MethodDefinition(MemberAccessExpressionSyntax method)
+		{
+			Method = method;
+			InvocationExpressionSyntax? invocationExpressionSyntax = method.Parent as InvocationExpressionSyntax;
+			Arguments = invocationExpressionSyntax?.ArgumentList.Arguments ?? [];
+		}
+
+		public MemberAccessExpressionSyntax Method { get; }
+		public SeparatedSyntaxList<ArgumentSyntax> Arguments { get; }
+	}
+
+	private interface IDefinitionElement;
+
+	private sealed class MethodDefinitionElement(MethodDefinition methodDefinition) : IDefinitionElement
+	{
+		public MethodDefinition Element => methodDefinition;
+	}
+
+	private sealed class AndDefinitionElement : IDefinitionElement;
+
+	private sealed class ExpressionSyntaxWalker(bool isConditional) : SyntaxWalker
+	{
+		private bool _isConditional = isConditional;
+		private bool _isShould;
+		private string _subjectString = "";
+		public ExpressionSyntax? Subject { get; private set; }
+
+		public Stack<IDefinitionElement> Methods { get; } = [];
+
+		public override void Visit(SyntaxNode node)
+		{
+			if (_isConditional)
+			{
+				if (_subjectString == "" && node is IdentifierNameSyntax identifierNameSyntax)
+				{
+					_subjectString = identifierNameSyntax.ToString();
+				}
+
+				if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
+				{
+					_subjectString += "?" + memberBindingExpressionSyntax;
+				}
+
+				if (node is ArgumentListSyntax invocationExpressionSyntax)
+				{
+					_subjectString += invocationExpressionSyntax;
+				}
+			}
+
+			if (_isShould && node is not ParenthesizedExpressionSyntax)
+			{
+				Subject = node as ExpressionSyntax;
+				_isShould = false;
+			}
+
+			if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+			{
+				_isShould = memberAccessExpressionSyntax.Name.Identifier.ValueText == "Should";
+				if (_isShould)
+				{
+					if (_isConditional)
+					{
+						Subject = SyntaxFactory.ParseExpression(
+							_subjectString + "?" + memberAccessExpressionSyntax.Expression);
+						_isShould = false;
+						_isConditional = false;
+					}
+				}
+				else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
+				{
+					Methods.Push(new MethodDefinitionElement(new MethodDefinition(memberAccessExpressionSyntax)));
+				}
+				else if (memberAccessExpressionSyntax.Name.Identifier.ValueText == "And")
+				{
+					Methods.Push(new AndDefinitionElement());
+				}
+			}
+
+			if (node is not ArgumentSyntax)
+			{
+				base.Visit(node);
+			}
+		}
+	}
 }
