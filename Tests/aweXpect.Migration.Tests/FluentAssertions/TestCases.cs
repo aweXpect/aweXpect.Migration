@@ -122,6 +122,18 @@ public static class TestCases
 		theoryData.AddWithBecause("object[] subject = [];",
 			"subject.Should().AllBeOfType(typeof(ArgumentException), {0})",
 			"Expect.That(subject).All().AreExactly(typeof(ArgumentException))");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().BeInAscendingOrder({0})",
+			"Expect.That(subject).IsInAscendingOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().NotBeInAscendingOrder({0})",
+			"Expect.That(subject).IsNotInAscendingOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().BeInDescendingOrder({0})",
+			"Expect.That(subject).IsInDescendingOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().NotBeInDescendingOrder({0})",
+			"Expect.That(subject).IsNotInDescendingOrder()");
 		return theoryData;
 	}
 

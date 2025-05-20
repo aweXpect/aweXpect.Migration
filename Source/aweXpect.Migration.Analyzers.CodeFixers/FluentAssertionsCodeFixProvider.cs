@@ -406,7 +406,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		IDefinitionElement? mainMethodDefinition = methods.Pop();
 		if (mainMethodDefinition is not MethodDefinitionElement methodDefinitionElement)
 		{
-			return actual;
+			return null;
 		}
 
 		MethodDefinition mainMethod = methodDefinitionElement.Element;
@@ -423,7 +423,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return SyntaxFactory.ParseExpression(newExpression);
 		}
 
-		return actual;
+		return null;
 	}
 
 #pragma warning disable S3776
@@ -476,6 +476,14 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".EndsWith({expected})", 1),
 			"NotEndWith" => await ParseExpressionWithBecause(
 				$".DoesNotEndWith({expected})", 1),
+			"BeInAscendingOrder" => await ParseExpressionWithBecause(
+				".IsInAscendingOrder()", 0),
+			"NotBeInAscendingOrder" => await ParseExpressionWithBecause(
+				".IsNotInAscendingOrder()", 0),
+			"BeInDescendingOrder" => await ParseExpressionWithBecause(
+				".IsInDescendingOrder()", 0),
+			"NotBeInDescendingOrder" => await ParseExpressionWithBecause(
+				".IsNotInDescendingOrder()", 0),
 			"BeEmpty" => await ParseExpressionWithBecause(
 				".IsEmpty()", 0),
 			"NotBeEmpty" => await ParseExpressionWithBecause(
