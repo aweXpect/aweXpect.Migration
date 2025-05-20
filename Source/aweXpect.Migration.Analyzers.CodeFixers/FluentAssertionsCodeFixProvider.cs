@@ -63,7 +63,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 #pragma warning disable S3776
 	private static async Task<string?> BeEquivalentTo(CodeFixContext context,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		SeparatedSyntaxList<ArgumentSyntax> arguments,
 		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<IDefinitionElement>? methods,
 		bool negated = false)
 	{
@@ -74,7 +74,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			string expressionSuffix = IsString(actualSymbolType) ? ".IgnoringCase()" : ".InAnyOrder()";
 			int becauseIndex = 1;
-			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
+			string? secondArgument = arguments.ElementAtOrDefault(1)?.ToString() ?? "";
 			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
 			{
 				if (secondArgument.Contains(".WithStrictOrdering()"))
@@ -105,20 +105,37 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				becauseIndex++;
 			}
 
-			return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+			return await ParseExpressionWithBecauseSupport(context, actual, arguments,
 				$".{(negated ? "IsNotEqualTo" : "IsEqualTo")}({expected})" + expressionSuffix,
 				methods, becauseIndex);
 		}
 
-		return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+		return await ParseExpressionWithBecauseSupport(context, actual, arguments,
 			$".{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected})",
 			methods, 1);
 	}
 #pragma warning restore S3776
 
+	private static async Task<string?> BeInRange(
+		CodeFixContext context,
+		SeparatedSyntaxList<ArgumentSyntax> arguments,
+		ExpressionSyntax actual,
+		Stack<IDefinitionElement>? methods,
+		bool negated = false)
+	{
+		if (arguments.Count >= 2)
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+				$".{(negated ? "IsNotBetween" : "IsBetween")}({arguments[0]}).And({arguments[1]})",
+				methods, 2);
+		}
+
+		return null;
+	}
+
 #pragma warning disable S3776
 	private static async Task<string?> AllBeEquivalentTo(CodeFixContext context,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		SeparatedSyntaxList<ArgumentSyntax> arguments,
 		ExpressionSyntax actual, ArgumentSyntax? expected, Stack<IDefinitionElement>? methods,
 		bool negated = false)
 	{
@@ -129,7 +146,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			string expressionSuffix = "";
 			int becauseIndex = 1;
-			string? secondArgument = argumentListArguments.ElementAtOrDefault(1)?.ToString() ?? "";
+			string? secondArgument = arguments.ElementAtOrDefault(1)?.ToString() ?? "";
 			if (!secondArgument.StartsWith("\"") || !secondArgument.EndsWith("\""))
 			{
 				if (secondArgument.Contains(".WithoutStrictOrdering()"))
@@ -160,13 +177,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				becauseIndex++;
 			}
 
-			return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+			return await ParseExpressionWithBecauseSupport(context, actual, arguments,
 				$".All().{(negated ? "AreNotEqualTo" : "AreEqualTo")}({expected})" +
 				expressionSuffix,
 				methods, becauseIndex);
 		}
 
-		return await ParseExpressionWithBecauseSupport(context, actual, argumentListArguments,
+		return await ParseExpressionWithBecauseSupport(context, actual, arguments,
 			$".All().{(negated ? "AreNotEquivalentTo" : "AreEquivalentTo")}({expected})",
 			methods, 1);
 	}
@@ -269,7 +286,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	private static async Task<string?> ParseExpressionWithBecauseSupport(
 		CodeFixContext context,
 		ExpressionSyntax actual,
-		SeparatedSyntaxList<ArgumentSyntax> argumentListArguments,
+		SeparatedSyntaxList<ArgumentSyntax> arguments,
 		string expression,
 		Stack<IDefinitionElement>? methods,
 		int? becauseIndex = null)
@@ -284,16 +301,16 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 		if (becauseIndex.HasValue)
 		{
-			string? because = argumentListArguments.ElementAtOrDefault(becauseIndex.Value)?.ToString();
+			string? because = arguments.ElementAtOrDefault(becauseIndex.Value)?.ToString();
 			if (because != null)
 			{
-				if (becauseIndex.Value + 1 < argumentListArguments.Count)
+				if (becauseIndex.Value + 1 < arguments.Count)
 				{
 					because = $"${because}";
 					int index = 0;
-					for (int i = becauseIndex.Value + 1; i < argumentListArguments.Count; i++)
+					for (int i = becauseIndex.Value + 1; i < arguments.Count; i++)
 					{
-						because = because.Replace($"{{{index++}}}", $"{{{argumentListArguments[i]}}}");
+						because = because.Replace($"{{{index++}}}", $"{{{arguments[i]}}}");
 					}
 				}
 
@@ -488,6 +505,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				".IsNullOrWhiteSpace()", 0),
 			"NotBeNullOrWhiteSpace" => await ParseExpressionWithBecause(
 				".IsNotNullOrWhiteSpace()", 0),
+			"BeInRange" => await BeInRange(context, mainMethod.Arguments, actual,
+				methods),
+			"NotBeInRange" => await BeInRange(context, mainMethod.Arguments, actual,
+				methods, true),
 			"BePositive" => await ParseExpressionWithBecause(
 				".IsPositive()", 0),
 			"BeNegative" => await ParseExpressionWithBecause(
