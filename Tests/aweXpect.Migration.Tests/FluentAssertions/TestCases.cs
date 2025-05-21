@@ -266,6 +266,12 @@ public static class TestCases
 		theoryData.AddWithBecause("int subject = 1;",
 			"subject.Should().BeOneOf(2, 3, 4)",
 			"Expect.That(subject).IsOneOf(2, 3, 4)");
+		theoryData.AddWithBecause("int subject = 1;",
+			"subject.Should().BeInRange(0, 2, {0})",
+			"Expect.That(subject).IsBetween(0).And(2)");
+		theoryData.AddWithBecause("int subject = 1;",
+			"subject.Should().NotBeInRange(2, 3, {0})",
+			"Expect.That(subject).IsNotBetween(2).And(3)");
 		return theoryData;
 	}
 
