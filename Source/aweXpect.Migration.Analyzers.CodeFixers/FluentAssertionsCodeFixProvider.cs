@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+#pragma warning disable S1192 // String literals should not be duplicated
 namespace aweXpect.Migration.Analyzers;
 
 /// <summary>
@@ -53,9 +54,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			compilationUnit =
 				compilationUnit.ReplaceNode(nodeToReplace, newExpression.WithTriviaFrom(expressionSyntax));
+			return document.WithSyntaxRoot(compilationUnit);
 		}
 
-		return document.WithSyntaxRoot(compilationUnit);
+		return document;
 	}
 
 	private static bool IsString(ISymbol symbol)
@@ -132,6 +134,51 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 		return null;
 	}
+
+#pragma warning disable S3776
+	private static async Task<string?> BeInOrder(
+		SortOrder order,
+		CodeFixContext context,
+		MethodDefinition mainMethod,
+		SeparatedSyntaxList<ArgumentSyntax> arguments,
+		ExpressionSyntax actual,
+		Stack<IDefinitionElement>? methods,
+		bool negated = false)
+	{
+		if (mainMethod.Arguments.Count > 0)
+		{
+			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+			ISymbol? symbol = semanticModel.GetSymbolInfo(mainMethod.Method).Symbol;
+
+			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+			    !IsString(methodSymbol.Parameters[0].Type))
+			{
+				if (methodSymbol.Parameters[0].Type.Name.StartsWith("IComparer"))
+				{
+					return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+						$".{(negated ? "IsNotIn" : "IsIn")}{order}Order().Using({arguments[0]})",
+						methods, 1);
+				}
+
+				if (methodSymbol.Parameters.Length > 1 &&
+				    methodSymbol.Parameters[1].Type.Name.StartsWith("IComparer"))
+				{
+					return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+						$".{(negated ? "IsNotIn" : "IsIn")}{order}Order({arguments[0]}).Using({arguments[1]})",
+						methods, 2);
+				}
+
+				return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+					$".{(negated ? "IsNotIn" : "IsIn")}{order}Order({arguments[0]})",
+					methods, 1);
+			}
+		}
+
+		return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+			$".{(negated ? "IsNotIn" : "IsIn")}{order}Order()",
+			methods, 0);
+	}
+#pragma warning restore S3776
 
 #pragma warning disable S3776
 	private static async Task<string?> AllBeEquivalentTo(CodeFixContext context,
@@ -493,14 +540,14 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".EndsWith({expected})", 1),
 			"NotEndWith" => await ParseExpressionWithBecause(
 				$".DoesNotEndWith({expected})", 1),
-			"BeInAscendingOrder" => await ParseExpressionWithBecause(
-				".IsInAscendingOrder()", 0),
-			"NotBeInAscendingOrder" => await ParseExpressionWithBecause(
-				".IsNotInAscendingOrder()", 0),
-			"BeInDescendingOrder" => await ParseExpressionWithBecause(
-				".IsInDescendingOrder()", 0),
-			"NotBeInDescendingOrder" => await ParseExpressionWithBecause(
-				".IsNotInDescendingOrder()", 0),
+			"BeInAscendingOrder" => await BeInOrder(
+				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods),
+			"NotBeInAscendingOrder" => await BeInOrder(
+				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods, true),
+			"BeInDescendingOrder" => await BeInOrder(
+				SortOrder.Descending, context, mainMethod, mainMethod.Arguments, actual, methods),
+			"NotBeInDescendingOrder" => await BeInOrder(
+				SortOrder.Descending, context, mainMethod, mainMethod.Arguments, actual, methods, true),
 			"BeEmpty" => await ParseExpressionWithBecause(
 				".IsEmpty()", 0),
 			"NotBeEmpty" => await ParseExpressionWithBecause(
@@ -646,6 +693,12 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	}
 #pragma warning restore S3776
 
+	private enum SortOrder
+	{
+		Ascending,
+		Descending,
+	}
+
 	private sealed class MethodDefinition
 	{
 		public MethodDefinition(MemberAccessExpressionSyntax method)
@@ -733,3 +786,5 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		}
 	}
 }
+
+#pragma warning restore S1192

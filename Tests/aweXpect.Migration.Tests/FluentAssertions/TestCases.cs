@@ -125,15 +125,51 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().BeInAscendingOrder({0})",
 			"Expect.That(subject).IsInAscendingOrder()");
+		theoryData.AddWithBecause("string[] subject = [\"a\",\"b\"];",
+			"subject.Should().BeInAscendingOrder(StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsInAscendingOrder().Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().BeInAscendingOrder(x => x.GetHashCode(), {0})",
+			"Expect.That(subject).IsInAscendingOrder(x => x.GetHashCode())");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().BeInAscendingOrder(x => x.ToString(), StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsInAscendingOrder(x => x.ToString()).Using(StringComparer.Ordinal)");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().NotBeInAscendingOrder({0})",
 			"Expect.That(subject).IsNotInAscendingOrder()");
+		theoryData.AddWithBecause("string[] subject = [\"a\",\"b\"];",
+			"subject.Should().NotBeInAscendingOrder(StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsNotInAscendingOrder().Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().NotBeInAscendingOrder(x => x.ToString(), StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsNotInAscendingOrder(x => x.ToString()).Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().NotBeInAscendingOrder(x => x.GetHashCode(), {0})",
+			"Expect.That(subject).IsNotInAscendingOrder(x => x.GetHashCode())");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().BeInDescendingOrder({0})",
 			"Expect.That(subject).IsInDescendingOrder()");
+		theoryData.AddWithBecause("string[] subject = [\"a\",\"b\"];",
+			"subject.Should().BeInDescendingOrder(StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsInDescendingOrder().Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().BeInDescendingOrder(x => x.GetHashCode(), {0})",
+			"Expect.That(subject).IsInDescendingOrder(x => x.GetHashCode())");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().BeInDescendingOrder(x => x.ToString(), StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsInDescendingOrder(x => x.ToString()).Using(StringComparer.Ordinal)");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().NotBeInDescendingOrder({0})",
 			"Expect.That(subject).IsNotInDescendingOrder()");
+		theoryData.AddWithBecause("string[] subject = [\"a\",\"b\"];",
+			"subject.Should().NotBeInDescendingOrder(StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsNotInDescendingOrder().Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().NotBeInDescendingOrder(x => x.GetHashCode(), {0})",
+			"Expect.That(subject).IsNotInDescendingOrder(x => x.GetHashCode())");
+		theoryData.AddWithBecause("object[] subject = [];",
+			"subject.Should().NotBeInDescendingOrder(x => x.ToString(), StringComparer.Ordinal, {0})",
+			"Expect.That(subject).IsNotInDescendingOrder(x => x.ToString()).Using(StringComparer.Ordinal)");
 		return theoryData;
 	}
 
