@@ -122,6 +122,21 @@ public static class TestCases
 		theoryData.AddWithBecause("object[] subject = [];",
 			"subject.Should().AllBeOfType(typeof(ArgumentException), {0})",
 			"Expect.That(subject).All().AreExactly(typeof(ArgumentException))");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().BeSubsetOf(expected, {0})",
+			"Expect.That(subject).IsContainedIn(expected).InAnyOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().ContainInOrder(expected, {0})",
+			"Expect.That(subject).Contains(expected)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().Contain(expected, {0})",
+			"Expect.That(subject).Contains(expected).InAnyOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().StartWith(expected, {0})",
+			"Expect.That(subject).StartsWith(expected)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().EndWith(expected, {0})",
+			"Expect.That(subject).EndsWith(expected)");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().BeInAscendingOrder({0})",
 			"Expect.That(subject).IsInAscendingOrder()");
