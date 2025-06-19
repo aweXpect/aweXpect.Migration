@@ -128,6 +128,9 @@ public static class TestCases
 		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
 			"subject.Should().ContainInOrder(expected, {0})",
 			"Expect.That(subject).Contains(expected)");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];",
+			"subject.Should().ContainInOrder(1, 2, 3)",
+			"Expect.That(subject).Contains([1, 2, 3])");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
 			"subject.Should().Contain(expected, {0})",
 			"Expect.That(subject).Contains(expected).InAnyOrder()");
