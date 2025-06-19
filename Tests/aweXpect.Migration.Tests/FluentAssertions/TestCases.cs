@@ -126,6 +126,9 @@ public static class TestCases
 			"subject.Should().BeSubsetOf(expected, {0})",
 			"Expect.That(subject).IsContainedIn(expected).InAnyOrder()");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
+			"subject.Should().NotBeSubsetOf(expected, {0})",
+			"Expect.That(subject).IsNotContainedIn(expected).InAnyOrder()");
+		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
 			"subject.Should().ContainInOrder(expected, {0})",
 			"Expect.That(subject).Contains(expected)");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
