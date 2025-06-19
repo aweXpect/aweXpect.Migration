@@ -347,7 +347,6 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		ArgumentSyntax? expected,
 		Stack<IDefinitionElement>? methods)
 	{
 		string expressionSuffix = "";
@@ -581,7 +580,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".DoesNotEndWith({expected})", 1),
 			"BeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
-			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, expected, methods),
+			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods),
 			"BeInAscendingOrder" => await BeInOrder(
 				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods),
 			"NotBeInAscendingOrder" => await BeInOrder(
