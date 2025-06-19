@@ -343,6 +343,31 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods, becauseIndex);
 	}
 
+	private static async Task<string?> ContainInOrder(
+		CodeFixContext context,
+		MethodDefinition mainMethod,
+		ExpressionSyntax actual,
+		Stack<IDefinitionElement>? methods)
+	{
+		string expressionSuffix = "";
+		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
+		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+		    ((mainMethod.Arguments.Count == 1 && methodSymbol.Parameters.Length == 1 &&
+		      !IsString(methodSymbol.Parameters[0].Type) && IsEnumerable(methodSymbol.Parameters[0].Type)) ||
+		     (methodSymbol.Parameters.Length > 1 && IsString(methodSymbol.Parameters[1].Type)))
+		   )
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+				$".Contains({mainMethod.Arguments[0]}){expressionSuffix}",
+				methods, 1);
+		}
+
+		return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+			$".Contains([{string.Join(", ", mainMethod.Arguments)}]){expressionSuffix}",
+			methods);
+	}
+
 	private static async Task<string?> ParseExpressionWithBecauseSupport(
 		CodeFixContext context,
 		ExpressionSyntax actual,
@@ -555,8 +580,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".DoesNotEndWith({expected})", 1),
 			"BeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
-			"ContainInOrder" => await ParseExpressionWithBecause(
-				$".Contains({expected})", 1),
+			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods),
 			"BeInAscendingOrder" => await BeInOrder(
 				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods),
 			"NotBeInAscendingOrder" => await BeInOrder(
