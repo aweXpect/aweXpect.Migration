@@ -146,6 +146,9 @@ public static class TestCases
 		theoryData.AddWithBecause("object[] subject = [1, 2,];object expected = new();",
 			"subject.Should().ContainEquivalentOf(expected, {0})",
 			"Expect.That(subject).Contains(expected).Equivalent()");
+		theoryData.AddWithBecause("object[] subject = [1, 2,];object expected = new();",
+			"subject.Should().NotContainEquivalentOf(expected, {0})",
+			"Expect.That(subject).DoesNotContain(expected).Equivalent()");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];int[] expected = [1, 2,];",
 			"subject.Should().StartWith(expected, {0})",
 			"Expect.That(subject).StartsWith(expected)");
