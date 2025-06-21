@@ -369,6 +369,15 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods);
 	}
 
+	private static async Task<string?> ContainEquivalentOf(
+		CodeFixContext context,
+		MethodDefinition mainMethod,
+		ExpressionSyntax actual,
+		Stack<IDefinitionElement>? methods)
+		=> await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+			$".Contains({mainMethod.Arguments[0]}).Equivalent()",
+			methods, 1);
+
 	private static async Task<string?> ParseExpressionWithBecauseSupport(
 		CodeFixContext context,
 		ExpressionSyntax actual,
@@ -585,6 +594,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".IsNotContainedIn({expected}).InAnyOrder()", 1),
 			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods, false),
 			"ContainInConsecutiveOrder" => await ContainInOrder(context, mainMethod, actual, methods, true),
+			"ContainEquivalentOf" => await ContainEquivalentOf(context, mainMethod, actual, methods),
 			"BeInAscendingOrder" => await BeInOrder(
 				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods),
 			"NotBeInAscendingOrder" => await BeInOrder(
