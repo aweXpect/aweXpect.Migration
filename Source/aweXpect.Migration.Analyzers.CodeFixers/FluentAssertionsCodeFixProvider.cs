@@ -276,7 +276,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
 		    !IsString(methodSymbol.Parameters[0].Type) && IsEnumerable(methodSymbol.Parameters[0].Type))
 		{
-			expressionSuffix = ".InAnyOrder()";
+			expressionSuffix = ".InAnyOrder().IgnoringInterspersedItems()";
 		}
 		else if (mainMethod.Arguments.Count > 1)
 		{
@@ -347,9 +347,10 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		Stack<IDefinitionElement>? methods)
+		Stack<IDefinitionElement>? methods,
+		bool isConsecutive)
 	{
-		string expressionSuffix = "";
+		string expressionSuffix = isConsecutive ? "" : ".IgnoringInterspersedItems()";
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
 		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
@@ -582,7 +583,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
 			"NotBeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsNotContainedIn({expected}).InAnyOrder()", 1),
-			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods),
+			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods, false),
+			"ContainInConsecutiveOrder" => await ContainInOrder(context, mainMethod, actual, methods, true),
 			"BeInAscendingOrder" => await BeInOrder(
 				SortOrder.Ascending, context, mainMethod, mainMethod.Arguments, actual, methods),
 			"NotBeInAscendingOrder" => await BeInOrder(
