@@ -281,9 +281,16 @@ public static class TestCases
 		theoryData.AddWithBecause("Action callback = () => {};",
 			"callback.Should().NotThrow({0})",
 			"Expect.That(callback).DoesNotThrow()");
+		theoryData.AddWithBecause("Action callback = () => {};",
+			"callback.Should().NotThrow<ArgumentException>({0})",
+			"Expect.That(callback).DoesNotThrow<ArgumentException>()");
 		theoryData.AddWithBecause("Func<Task> callback = () => Task.CompletedTask;",
 			"callback.Should().NotThrowAsync({0})",
 			"Expect.That(callback).DoesNotThrow()",
+			true);
+		theoryData.AddWithBecause("Func<Task> callback = () => Task.CompletedTask;",
+			"callback.Should().NotThrowAsync<ArgumentException>({0})",
+			"Expect.That(callback).DoesNotThrow<ArgumentException>()",
 			true);
 		theoryData.AddWithBecause("Action callback = () => {};",
 			"callback.Should().Throw<ArgumentException>({0})",
