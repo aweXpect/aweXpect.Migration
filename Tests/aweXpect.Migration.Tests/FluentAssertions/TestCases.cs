@@ -528,6 +528,9 @@ public static class TestCases
 		theoryData.AddWithBecause("string subject = \"foo\";string expected = \"bar\";",
 			"subject.Should().BeEquivalentTo(expected, o => o.IgnoringNewlineStyle(), {0})",
 			"Expect.That(subject).IsEqualTo(expected).IgnoringCase().IgnoringNewlineStyle()");
+		theoryData.AddWithBecause("string subject = \"foo\"; string expected = \"bar\";",
+			"subject.Should().Match(expected, {0})",
+			"Expect.That(subject).IsEqualTo(expected).AsWildcard()");
 		return theoryData;
 	}
 
