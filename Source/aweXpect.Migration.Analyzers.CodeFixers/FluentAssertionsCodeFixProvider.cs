@@ -593,6 +593,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
 			"NotBeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsNotContainedIn({expected}).InAnyOrder()", 1),
+			"Match" => await ParseExpressionWithBecause(
+				$".IsEqualTo({expected}).AsWildcard()", 1),
 			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods, false),
 			"ContainInConsecutiveOrder" => await ContainInOrder(context, mainMethod, actual, methods, true),
 			"ContainEquivalentOf" => await ContainEquivalentOf(context, mainMethod, actual, methods, false),
