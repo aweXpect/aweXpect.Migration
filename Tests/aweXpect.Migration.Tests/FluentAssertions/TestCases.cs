@@ -336,6 +336,12 @@ public static class TestCases
 		theoryData.AddWithBecause("double subject = 1.1;double expected = 1.0;double tolerance = 0.05;",
 			"subject.Should().BeApproximately(expected, tolerance, {0})",
 			"Expect.That(subject).IsEqualTo(expected).Within(tolerance)");
+		theoryData.AddWithBecause("uint subject = 1;uint expected = 2;uint delta = 3;",
+			"subject.Should().BeCloseTo(expected, delta, {0})",
+			"Expect.That(subject).IsEqualTo(expected).Within(delta)");
+		theoryData.AddWithBecause("byte subject = 1;byte expected = 2;byte delta = 3;",
+			"subject.Should().BeCloseTo(expected, delta, {0})",
+			"Expect.That(subject).IsEqualTo(expected).Within(delta)");
 		theoryData.AddWithBecause("int subject = 1;int[] expected = [2, 3,];",
 			"subject.Should().BeOneOf(expected, {0})",
 			"Expect.That(subject).IsOneOf(expected)");
