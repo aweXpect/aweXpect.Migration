@@ -399,6 +399,48 @@ public static class TestCases
 		theoryData.AddWithBecause("DateTime subject = DateTime.Now;DateTime[] expected = [DateTime.Now,];",
 			"subject.Should().BeOneOf(expected, {0})",
 			"Expect.That(subject).IsOneOf(expected)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveYear(5, {0})",
+			"Expect.That(subject).HasYear().EqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveMonth(5, {0})",
+			"Expect.That(subject).HasMonth().EqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveDay(5, {0})",
+			"Expect.That(subject).HasDay().EqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveHour(5, {0})",
+			"Expect.That(subject).HasHour().EqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveMinute(5, {0})",
+			"Expect.That(subject).HasMinute().EqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().HaveSecond(5, {0})",
+			"Expect.That(subject).HasSecond().EqualTo(5)");
+		theoryData.AddWithBecause("DateTimeOffset subject = DateTimeOffset.Now;",
+			"subject.Should().HaveOffset(TimeSpan.FromHours(4), {0})",
+			"Expect.That(subject).HasOffset().EqualTo(TimeSpan.FromHours(4))");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveYear(5, {0})",
+			"Expect.That(subject).HasYear().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveMonth(5, {0})",
+			"Expect.That(subject).HasMonth().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveDay(5, {0})",
+			"Expect.That(subject).HasDay().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveHour(5, {0})",
+			"Expect.That(subject).HasHour().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveMinute(5, {0})",
+			"Expect.That(subject).HasMinute().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTime subject = DateTime.Now;",
+			"subject.Should().NotHaveSecond(5, {0})",
+			"Expect.That(subject).HasSecond().NotEqualTo(5)");
+		theoryData.AddWithBecause("DateTimeOffset subject = DateTimeOffset.Now;",
+			"subject.Should().NotHaveOffset(TimeSpan.FromHours(4), {0})",
+			"Expect.That(subject).HasOffset().NotEqualTo(TimeSpan.FromHours(4))");
 		return theoryData;
 	}
 
