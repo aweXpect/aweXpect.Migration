@@ -642,8 +642,14 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			"BeApproximately" => await ParseExpressionWithBecause(
 				$".IsEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
 				2),
+			"NotBeApproximately" => await ParseExpressionWithBecause(
+				$".IsNotEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
+				2),
 			"BeCloseTo" => await ParseExpressionWithBecause(
 				$".IsEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
+				2),
+			"NotBeCloseTo" => await ParseExpressionWithBecause(
+				$".IsNotEqualTo({expected}).Within({mainMethod.Arguments.ElementAtOrDefault(1)})",
 				2),
 			"BeAfter" => await ParseExpressionWithBecause(
 				$".IsAfter({expected})", 1),
