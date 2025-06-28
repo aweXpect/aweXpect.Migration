@@ -676,6 +676,34 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				".IsDefined()", 0),
 			"NotBeDefined" => await ParseExpressionWithBecause(
 				".IsNotDefined()", 0),
+			"HaveYear" => await ParseExpressionWithBecause(
+				$".HasYear().EqualTo({expected})", 1),
+			"HaveMonth" => await ParseExpressionWithBecause(
+				$".HasMonth().EqualTo({expected})", 1),
+			"HaveDay" => await ParseExpressionWithBecause(
+				$".HasDay().EqualTo({expected})", 1),
+			"HaveHour" => await ParseExpressionWithBecause(
+				$".HasHour().EqualTo({expected})", 1),
+			"HaveMinute" => await ParseExpressionWithBecause(
+				$".HasMinute().EqualTo({expected})", 1),
+			"HaveSecond" => await ParseExpressionWithBecause(
+				$".HasSecond().EqualTo({expected})", 1),
+			"HaveOffset" => await ParseExpressionWithBecause(
+				$".HasOffset().EqualTo({expected})", 1),
+			"NotHaveYear" => await ParseExpressionWithBecause(
+				$".HasYear().NotEqualTo({expected})", 1),
+			"NotHaveMonth" => await ParseExpressionWithBecause(
+				$".HasMonth().NotEqualTo({expected})", 1),
+			"NotHaveDay" => await ParseExpressionWithBecause(
+				$".HasDay().NotEqualTo({expected})", 1),
+			"NotHaveHour" => await ParseExpressionWithBecause(
+				$".HasHour().NotEqualTo({expected})", 1),
+			"NotHaveMinute" => await ParseExpressionWithBecause(
+				$".HasMinute().NotEqualTo({expected})", 1),
+			"NotHaveSecond" => await ParseExpressionWithBecause(
+				$".HasSecond().NotEqualTo({expected})", 1),
+			"NotHaveOffset" => await ParseExpressionWithBecause(
+				$".HasOffset().NotEqualTo({expected})", 1),
 			"HaveValue" => expected is null || expected.Expression.ToString().Contains('\"')
 				? await ParseExpressionWithBecause(
 					".IsNotNull()", 0)
