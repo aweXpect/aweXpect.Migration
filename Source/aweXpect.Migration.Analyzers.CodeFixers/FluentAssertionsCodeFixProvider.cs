@@ -150,7 +150,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 			ISymbol? symbol = semanticModel.GetSymbolInfo(mainMethod.Method).Symbol;
 
-			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+			if (symbol is IMethodSymbol { Parameters.Length: > 0 } methodSymbol &&
 			    !IsString(methodSymbol.Parameters[0].Type))
 			{
 				if (methodSymbol.Parameters[0].Type.Name.StartsWith("IComparer"))
@@ -247,7 +247,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 			ISymbol? symbol = semanticModel.GetSymbolInfo(mainMethod.Method).Symbol;
 
-			if (symbol is IMethodSymbol { Parameters.Length: > 1, } methodSymbol &&
+			if (symbol is IMethodSymbol { Parameters.Length: > 1 } methodSymbol &&
 			    methodSymbol.Parameters[0].Type.Name != methodSymbol.Parameters[1].Type.Name)
 			{
 				return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
@@ -273,7 +273,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		string expressionSuffix = "";
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
-		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+		if (symbol is IMethodSymbol { Parameters.Length: > 0 } methodSymbol &&
 		    !IsString(methodSymbol.Parameters[0].Type) && IsEnumerable(methodSymbol.Parameters[0].Type))
 		{
 			expressionSuffix = ".InAnyOrder().IgnoringInterspersedItems()";
@@ -297,7 +297,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				"Exactly.Once()" => ".Once()",
 				"Exactly.Twice()" => ".Twice()",
 				"Exactly.Thrice()" => ".Exactly(3.Times())",
-				_ => "",
+				_ => ""
 			};
 			if (TryExtract(occurrenceConstraint, "AtLeast.Times(", out string? atLeastTimes))
 			{
@@ -353,7 +353,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		string expressionSuffix = isConsecutive ? "" : ".IgnoringInterspersedItems()";
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
-		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+		if (symbol is IMethodSymbol { Parameters.Length: > 0 } methodSymbol &&
 		    ((mainMethod.Arguments.Count == 1 && methodSymbol.Parameters.Length == 1 &&
 		      !IsString(methodSymbol.Parameters[0].Type) && IsEnumerable(methodSymbol.Parameters[0].Type)) ||
 		     (methodSymbol.Parameters.Length > 1 && IsString(methodSymbol.Parameters[1].Type)))
@@ -373,13 +373,11 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		CodeFixContext context,
 		MethodDefinition mainMethod,
 		ExpressionSyntax actual,
-		Stack<IDefinitionElement>? methods,
-		bool isConsecutive)
+		Stack<IDefinitionElement>? methods)
 	{
-		string expressionSuffix = isConsecutive ? "" : ".IgnoringInterspersedItems()";
 		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
-		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+		if (symbol is IMethodSymbol { Parameters.Length: > 0 } methodSymbol &&
 		    IsString(methodSymbol.Parameters[0].Type))
 		{
 			return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
@@ -452,7 +450,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return methodName switch
 			{
 				"WithMessage" => $".WithMessage({method.Arguments.ElementAtOrDefault(0)}).AsWildcard()",
-				_ => await GetNewExpressionFor(context, actual, method, null),
+				_ => await GetNewExpressionFor(context, actual, method, null)
 			};
 		}
 
@@ -582,7 +580,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
 			ISymbol? symbol = semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol;
 
-			if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol)
+			if (symbol is IMethodSymbol { Parameters.Length: > 0 } methodSymbol)
 			{
 				expectedType = methodSymbol.Parameters[0].Type.Name;
 			}
@@ -616,7 +614,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
 			"NotBeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsNotContainedIn({expected}).InAnyOrder()", 1),
-			"Match" => await Match(context, mainMethod, actual, methods, false),
+			"Match" => await Match(context, mainMethod, actual, methods),
 			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods, false),
 			"ContainInConsecutiveOrder" => await ContainInOrder(context, mainMethod, actual, methods, true),
 			"ContainEquivalentOf" => await ContainEquivalentOf(context, mainMethod, actual, methods, false),
@@ -809,7 +807,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 					$".ThrowsExactly<{genericArgs}>()", 0)
 				: await ParseExpressionWithBecause(
 					$".ThrowsExactly({expected})", 1),
-			_ => null,
+			_ => null
 		};
 	}
 #pragma warning restore S3776
@@ -817,7 +815,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 	private enum SortOrder
 	{
 		Ascending,
-		Descending,
+		Descending
 	}
 
 	private sealed class MethodDefinition
