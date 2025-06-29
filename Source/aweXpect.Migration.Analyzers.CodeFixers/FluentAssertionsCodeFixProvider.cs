@@ -369,6 +369,29 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			methods);
 	}
 
+	private static async Task<string?> Match(
+		CodeFixContext context,
+		MethodDefinition mainMethod,
+		ExpressionSyntax actual,
+		Stack<IDefinitionElement>? methods,
+		bool isConsecutive)
+	{
+		string expressionSuffix = isConsecutive ? "" : ".IgnoringInterspersedItems()";
+		SemanticModel? semanticModel = await context.Document.GetSemanticModelAsync();
+		ISymbol? symbol = semanticModel?.GetSymbolInfo(mainMethod.Method).Symbol;
+		if (symbol is IMethodSymbol { Parameters.Length: > 0, } methodSymbol &&
+		    IsString(methodSymbol.Parameters[0].Type))
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+				$".IsEqualTo({mainMethod.Arguments[0]}).AsWildcard()",
+				methods, 1);
+		}
+
+		return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+			$".Satisfies({mainMethod.Arguments[0]})",
+			methods, 1);
+	}
+
 	private static async Task<string?> ContainEquivalentOf(
 		CodeFixContext context,
 		MethodDefinition mainMethod,
@@ -593,8 +616,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				$".IsContainedIn({expected}).InAnyOrder()", 1),
 			"NotBeSubsetOf" => await ParseExpressionWithBecause(
 				$".IsNotContainedIn({expected}).InAnyOrder()", 1),
-			"Match" => await ParseExpressionWithBecause(
-				$".IsEqualTo({expected}).AsWildcard()", 1),
+			"Match" => await Match(context, mainMethod, actual, methods, false),
 			"ContainInOrder" => await ContainInOrder(context, mainMethod, actual, methods, false),
 			"ContainInConsecutiveOrder" => await ContainInOrder(context, mainMethod, actual, methods, true),
 			"ContainEquivalentOf" => await ContainEquivalentOf(context, mainMethod, actual, methods, false),

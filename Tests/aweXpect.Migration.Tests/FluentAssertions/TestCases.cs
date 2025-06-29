@@ -44,6 +44,9 @@ public static class TestCases
 		theoryData.AddWithBecause("object subject = new Exception();",
 			"subject.Should().NotBeOfType(typeof(ArgumentException), {0})",
 			"Expect.That(subject).IsNotExactly(typeof(ArgumentException))");
+		theoryData.AddWithBecause("object subject = new();",
+			"subject.Should().Match(o => o.GetHashCode() > 0, {0})",
+			"Expect.That(subject).Satisfies(o => o.GetHashCode() > 0)");
 		return theoryData;
 	}
 
