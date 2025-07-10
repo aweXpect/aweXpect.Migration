@@ -206,6 +206,9 @@ public static class TestCases
 		theoryData.AddWithBecause("object[] subject = [];",
 			"subject.Should().NotBeInDescendingOrder(x => x.ToString(), StringComparer.Ordinal, {0})",
 			"Expect.That(subject).IsNotInDescendingOrder(x => x.ToString()).Using(StringComparer.Ordinal)");
+		theoryData.AddWithBecause("int[] subject = [1, 2, 3, 1, ];",
+			"subject.Should().OnlyHaveUniqueItems({0})",
+			"Expect.That(subject).AreAllUnique()");
 		return theoryData;
 	}
 

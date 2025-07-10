@@ -627,6 +627,8 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 				SortOrder.Descending, context, mainMethod, mainMethod.Arguments, actual, methods),
 			"NotBeInDescendingOrder" => await BeInOrder(
 				SortOrder.Descending, context, mainMethod, mainMethod.Arguments, actual, methods, true),
+			"OnlyHaveUniqueItems" => await ParseExpressionWithBecause(
+				".AreAllUnique()", 0),
 			"BeEmpty" => await ParseExpressionWithBecause(
 				".IsEmpty()", 0),
 			"NotBeEmpty" => await ParseExpressionWithBecause(
