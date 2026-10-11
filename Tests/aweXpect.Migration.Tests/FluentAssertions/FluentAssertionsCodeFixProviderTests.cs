@@ -1,4 +1,4 @@
-﻿using Verifier =
+using Verifier =
 	aweXpect.Migration.Tests.Verifiers.CSharpCodeFixVerifier<aweXpect.Migration.Analyzers.FluentAssertionsAnalyzer,
 		aweXpect.Migration.Analyzers.FluentAssertionsCodeFixProvider>;
 
@@ -525,6 +525,80 @@ public class FluentAssertionsCodeFixProviderTests
 			    }
 			}
 			"""
+		);
+
+	[Theory]
+	[InlineData("subject.Should().BeEquivalentTo(expected)",
+		"Expect.That(subject).IsEqualTo(expected)")]
+	[InlineData("subject.Should().NotBeEquivalentTo(expected)",
+		"Expect.That(subject).IsNotEqualTo(expected)")]
+	[InlineData("subjects.Should().ContainEquivalentOf(expected)",
+		"Expect.That(subjects).Contains(expected)")]
+	[InlineData("subjects.Should().NotContainEquivalentOf(expected)",
+		"Expect.That(subjects).DoesNotContain(expected)")]
+	[InlineData("subjects.Should().AllBeEquivalentTo(expected)",
+		"Expect.That(subjects).All().AreEqualTo(expected)")]
+	public async Task Equivalency_WhenTypeOverridesEquals_ShouldCompareWithEquals(
+		string fluentAssertions, string aweXpect) => await Verifier
+		.VerifyCodeFixAsync(
+			$$"""
+			  using aweXpect;
+			  using FluentAssertions;
+			  using Xunit;
+
+			  public class MyClass
+			  {
+			      [Fact]
+			      public void MyTest()
+			      {
+			          Money subject = new(1, "EUR");
+			          Money[] subjects = [subject,];
+			          Money expected = new(1, "EUR");
+
+			          [|{{fluentAssertions}}|];
+			      }
+
+			      private class Money(int amount, string currency)
+			      {
+			          public int Amount { get; } = amount;
+			          public string Currency { get; } = currency;
+
+			          public override bool Equals(object obj)
+			              => obj is Money other && other.Amount == Amount && other.Currency == Currency;
+
+			          public override int GetHashCode() => Amount;
+			      }
+			  }
+			  """,
+			$$"""
+			  using aweXpect;
+			  using FluentAssertions;
+			  using Xunit;
+
+			  public class MyClass
+			  {
+			      [Fact]
+			      public void MyTest()
+			      {
+			          Money subject = new(1, "EUR");
+			          Money[] subjects = [subject,];
+			          Money expected = new(1, "EUR");
+
+			          {{aweXpect}};
+			      }
+
+			      private class Money(int amount, string currency)
+			      {
+			          public int Amount { get; } = amount;
+			          public string Currency { get; } = currency;
+
+			          public override bool Equals(object obj)
+			              => obj is Money other && other.Amount == Amount && other.Currency == Currency;
+
+			          public override int GetHashCode() => Amount;
+			      }
+			  }
+			  """
 		);
 
 	private static async Task VerifyTestCase(

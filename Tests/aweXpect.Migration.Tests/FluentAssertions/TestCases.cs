@@ -100,7 +100,7 @@ public static class TestCases
 			"Expect.That(subject).Contains(1).And.Contains(2)");
 		theoryData.AddWithBecause("IEnumerable<int> subject = Enumerable.Range(1, 3);",
 			"subject.Should().AllBeEquivalentTo(1, {0})",
-			"Expect.That(subject).All().AreEquivalentTo(1)");
+			"Expect.That(subject).All().AreEqualTo(1)");
 		theoryData.AddWithBecause("string[] subject = [\"1\", \"2\",];",
 			"subject.Should().AllBeEquivalentTo(\"2\", {0})",
 			"Expect.That(subject).All().AreEqualTo(\"2\")");
@@ -166,7 +166,7 @@ public static class TestCases
 			"Expect.That(subject).DoesNotContain(x => x > 2)");
 		theoryData.AddWithBecause("int[] subject = [1, 2,];",
 			"subject.Should().ContainEquivalentOf(1, {0})",
-			"Expect.That(subject).Contains(1).Equivalent()");
+			"Expect.That(subject).Contains(1)");
 		theoryData.AddWithBecause("object[] subject = [1, 2,];object expected = new();",
 			"subject.Should().ContainEquivalentOf(expected, o => o.WithStrictOrdering(), {0})",
 			"Expect.That(subject).Contains(expected).Equivalent()");
