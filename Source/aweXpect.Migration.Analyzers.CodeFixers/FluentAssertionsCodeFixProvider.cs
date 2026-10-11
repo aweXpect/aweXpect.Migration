@@ -1070,20 +1070,7 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		{
 			if (_isConditional)
 			{
-				if (_subjectString == "" && node is IdentifierNameSyntax identifierNameSyntax)
-				{
-					_subjectString = identifierNameSyntax.ToString();
-				}
-
-				if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
-				{
-					_subjectString += "?" + memberBindingExpressionSyntax;
-				}
-
-				if (node is ArgumentListSyntax invocationExpressionSyntax)
-				{
-					_subjectString += invocationExpressionSyntax;
-				}
+				AppendToConditionalSubject(node);
 			}
 
 			if (_isShould && node is not ParenthesizedExpressionSyntax)
@@ -1094,32 +1081,55 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 
 			if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
 			{
-				_isShould = memberAccessExpressionSyntax.Name.Identifier.ValueText == "Should";
-				if (_isShould)
-				{
-					HasNestedShould |= _hasShould;
-					_hasShould = true;
-					if (_isConditional)
-					{
-						Subject = SyntaxFactory.ParseExpression(
-							_subjectString + "?" + memberAccessExpressionSyntax.Expression);
-						_isShould = false;
-						_isConditional = false;
-					}
-				}
-				else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
-				{
-					Methods.Push(new MethodDefinitionElement(new MethodDefinition(memberAccessExpressionSyntax)));
-				}
-				else if (memberAccessExpressionSyntax.Name.Identifier.ValueText == "And")
-				{
-					Methods.Push(new AndDefinitionElement());
-				}
+				VisitMemberAccess(memberAccessExpressionSyntax);
 			}
 
 			if (node is not ArgumentSyntax)
 			{
 				base.Visit(node);
+			}
+		}
+
+		private void AppendToConditionalSubject(SyntaxNode node)
+		{
+			if (_subjectString == "" && node is IdentifierNameSyntax identifierNameSyntax)
+			{
+				_subjectString = identifierNameSyntax.ToString();
+			}
+
+			if (node is MemberBindingExpressionSyntax memberBindingExpressionSyntax)
+			{
+				_subjectString += "?" + memberBindingExpressionSyntax;
+			}
+
+			if (node is ArgumentListSyntax invocationExpressionSyntax)
+			{
+				_subjectString += invocationExpressionSyntax;
+			}
+		}
+
+		private void VisitMemberAccess(MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+		{
+			_isShould = memberAccessExpressionSyntax.Name.Identifier.ValueText == "Should";
+			if (_isShould)
+			{
+				HasNestedShould |= _hasShould;
+				_hasShould = true;
+				if (_isConditional)
+				{
+					Subject = SyntaxFactory.ParseExpression(
+						_subjectString + "?" + memberAccessExpressionSyntax.Expression);
+					_isShould = false;
+					_isConditional = false;
+				}
+			}
+			else if (memberAccessExpressionSyntax.Parent is InvocationExpressionSyntax)
+			{
+				Methods.Push(new MethodDefinitionElement(new MethodDefinition(memberAccessExpressionSyntax)));
+			}
+			else if (memberAccessExpressionSyntax.Name.Identifier.ValueText == "And")
+			{
+				Methods.Push(new AndDefinitionElement());
 			}
 		}
 	}
