@@ -154,6 +154,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 			return null;
 		}
 
+		if (IsComparedByEquals(methodSymbol.Parameters[0].Type))
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+				$".{isEqualTo}({expected})",
+				methods, becauseIndex);
+		}
+
 		return await ParseExpressionWithBecauseSupport(context, actual, arguments,
 			$".{(negated ? "IsNotEquivalentTo" : "IsEquivalentTo")}({expected}" +
 			(isStrictOrdering ? "" : ", " + IgnoringCollectionOrder(semanticModel, mainMethod)) + ")",
@@ -288,6 +295,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		return false;
 	}
 
+	/// <summary>
+	///     FluentAssertions compares a type that overrides <see cref="object.Equals(object)" /> with its <c>Equals</c>,
+	///     whereas aweXpect's equivalency compares it by its members.
+	/// </summary>
+	private static bool IsComparedByEquals(ITypeSymbol typeSymbol)
+		=> !IsEnumerable(typeSymbol) && HasValueSemantics(typeSymbol);
+
 	private static ITypeSymbol? GetElementType(ITypeSymbol typeSymbol)
 	{
 		if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
@@ -396,6 +410,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		if (!TryGetOrdering(options, out bool isStrictOrdering))
 		{
 			return null;
+		}
+
+		if (IsComparedByEquals(expectationType))
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, arguments,
+				$".All().AreEqualTo({expected})",
+				methods, becauseIndex);
 		}
 
 		return await ParseExpressionWithBecauseSupport(context, actual, arguments,
@@ -615,6 +636,13 @@ public class FluentAssertionsCodeFixProvider() : AssertionCodeFixProvider(Rules.
 		if (!TryGetOrdering(options, out bool isStrictOrdering))
 		{
 			return null;
+		}
+
+		if (IsComparedByEquals(methodSymbol.Parameters[0].Type))
+		{
+			return await ParseExpressionWithBecauseSupport(context, actual, mainMethod.Arguments,
+				$".{(isNegated ? "DoesNotContain" : "Contains")}({mainMethod.Arguments[0]})",
+				methods, options is null ? 1 : 2);
 		}
 
 		string equivalencyOptions = isStrictOrdering || HasValueSemantics(methodSymbol.Parameters[0].Type)
